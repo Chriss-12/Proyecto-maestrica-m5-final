@@ -1,0 +1,179 @@
+@startuml proy
+
+title Modelo entidad-relacion de la Clinica del Sur
+caption Amazon RDS - Modelo base y ampliaciones justificadas
+
+left to right direction
+hide circle
+hide methods
+
+skinparam backgroundColor #F8FAFC
+skinparam shadowing false
+skinparam roundCorner 10
+skinparam linetype ortho
+skinparam dpi 180
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 13
+skinparam ArrowColor #475569
+skinparam ArrowThickness 1.4
+skinparam PackageBorderColor #94A3B8
+skinparam PackageFontColor #334155
+skinparam PackageFontStyle bold
+skinparam PackageBackgroundColor #F8FAFC
+
+skinparam entity {
+    BackgroundColor #FFFFFF
+    BorderColor #64748B
+    FontColor #0F172A
+    FontSize 12
+}
+
+package "Modelo base" #EFF6FF {
+
+    entity "PACIENTE" as PACIENTE #EAF2FF {
+        * <b><color:#1D4ED8>PK</color></b> paciente_id : BIGINT
+        --
+        * <b><color:#B45309>UK</color></b> ci : VARCHAR(20)
+        * nombre : VARCHAR(100)
+        * apellido : VARCHAR(100)
+        * fecha_nacimiento : DATE
+        telefono : VARCHAR(20)
+        email : VARCHAR(150)
+        * fecha_registro : TIMESTAMP
+        * activo : BOOLEAN
+    }
+
+    entity "ESPECIALIDAD" as ESPECIALIDAD #EAF2FF {
+        * <b><color:#1D4ED8>PK</color></b> especialidad_id : BIGINT
+        --
+        * <b><color:#B45309>UK</color></b> nombre : VARCHAR(100)
+        descripcion : VARCHAR(255)
+        * estado : VARCHAR(20)
+    }
+
+    entity "MEDICO" as MEDICO #EAF2FF {
+        * <b><color:#1D4ED8>PK</color></b> medico_id : BIGINT
+        --
+        * <b><color:#047857>FK</color></b> especialidad_id : BIGINT
+        * nombre : VARCHAR(100)
+        * apellido : VARCHAR(100)
+        * <b><color:#B45309>UK</color></b> matricula : VARCHAR(50)
+        * estado : VARCHAR(20)
+    }
+
+    entity "CONSULTORIO" as CONSULTORIO #EAF2FF {
+        * <b><color:#1D4ED8>PK</color></b> consultorio_id : BIGINT
+        --
+        * <b><color:#B45309>UK</color></b> nombre : VARCHAR(50)
+        ubicacion : VARCHAR(100)
+        * estado : VARCHAR(20)
+    }
+
+    entity "CITA" as CITA #EAF2FF {
+        * <b><color:#1D4ED8>PK</color></b> cita_id : BIGINT
+        --
+        * <b><color:#047857>FK</color></b> paciente_id : BIGINT
+        * <b><color:#047857>FK</color></b> medico_id : BIGINT
+        * <b><color:#047857>FK</color></b> consultorio_id : BIGINT
+        * fecha_cita : DATE
+        * hora_programada : TIME
+        fecha_llegada : TIMESTAMP
+        * estado : VARCHAR(20)
+        motivo : VARCHAR(255)
+        * fecha_creacion : TIMESTAMP
+        * fecha_actualizacion : TIMESTAMP
+    }
+
+    entity "ATENCION" as ATENCION #EAF2FF {
+        * <b><color:#1D4ED8>PK</color></b> atencion_id : BIGINT
+        --
+        * <b><color:#047857>FK</color></b> <b><color:#B45309>UK</color></b> cita_id : BIGINT
+        * fecha_atencion : TIMESTAMP
+        * estado : VARCHAR(20)
+        observacion : VARCHAR(255)
+    }
+}
+
+package "Ampliaciones del proyecto" #F0FDF4 {
+
+    entity "REGISTRO_CLINICO" as REGISTRO_CLINICO #ECFDF5 {
+        * <b><color:#1D4ED8>PK</color></b> registro_clinico_id : BIGINT
+        --
+        * <b><color:#047857>FK</color></b> <b><color:#B45309>UK</color></b> atencion_id : BIGINT
+        motivo_consulta : VARCHAR(500)
+        diagnostico : VARCHAR(1000)
+        tratamiento : VARCHAR(1000)
+        indicaciones : VARCHAR(1000)
+        * fecha_registro : TIMESTAMP
+    }
+
+    entity "PAGO" as PAGO #ECFDF5 {
+        * <b><color:#1D4ED8>PK</color></b> pago_id : BIGINT
+        --
+        * <b><color:#047857>FK</color></b> atencion_id : BIGINT
+        * monto : DECIMAL(12,2)
+        * moneda : CHAR(3)
+        * metodo : VARCHAR(20)
+        * estado : VARCHAR(20)
+        fecha_pago : TIMESTAMP
+        referencia : VARCHAR(100)
+        * fecha_registro : TIMESTAMP
+    }
+
+    entity "DOCUMENTO_S3" as DOCUMENTO_S3 #ECFDF5 {
+        * <b><color:#1D4ED8>PK</color></b> documento_id : BIGINT
+        --
+        <b><color:#047857>FK</color></b> paciente_id : BIGINT
+        <b><color:#047857>FK</color></b> atencion_id : BIGINT
+        * categoria : VARCHAR(30)
+        * nombre_archivo : VARCHAR(255)
+        * s3_bucket : VARCHAR(63)
+        * s3_object_key : VARCHAR(1024)
+        s3_etag : VARCHAR(128)
+        tipo_mime : VARCHAR(100)
+        * visibilidad : VARCHAR(20)
+        * fecha_carga : TIMESTAMP
+    }
+}
+
+package "Auditoria" #FAF5FF {
+
+    entity "AUDITORIA_EVENTO" as AUDITORIA_EVENTO #F3E8FF {
+        * <b><color:#1D4ED8>PK</color></b> auditoria_id : BIGINT
+        --
+        * tabla_afectada : VARCHAR(63)
+        * registro_id : VARCHAR(100)
+        * operacion : VARCHAR(10)
+        * usuario_bd : VARCHAR(100)
+        * fecha_evento : TIMESTAMP
+    }
+}
+
+ESPECIALIDAD ||--o{ MEDICO : clasifica
+PACIENTE ||--o{ CITA : solicita
+MEDICO ||--o{ CITA : atiende
+CONSULTORIO ||--o{ CITA : asigna
+CITA ||--o| ATENCION : genera
+ATENCION ||--o| REGISTRO_CLINICO : documenta
+ATENCION ||--o{ PAGO : recibe
+PACIENTE |o--o{ DOCUMENTO_S3 : posee
+ATENCION |o--o{ DOCUMENTO_S3 : adjunta
+
+note bottom of AUDITORIA_EVENTO
+  Registra cambios mediante triggers.
+  La referencia es generica, por eso
+  no utiliza claves foraneas directas.
+end note
+
+legend right
+  |= Elemento |= Significado |
+  | <b><color:#1D4ED8>PK</color></b> | Clave primaria |
+  | <b><color:#047857>FK</color></b> | Clave foranea |
+  | <b><color:#B45309>UK</color></b> | Valor unico |
+  | <back:#DBEAFE>  Tabla base  </back> | Modelo requerido en el trabajo grupal |
+  | <back:#ECFDF5>  Ampliacion  </back> | Informacion complementaria justificada |
+  | <back:#F3E8FF>  Auditoria  </back> | Control y trazabilidad tecnica |
+  | * campo | Campo obligatorio |
+endlegend
+
+@enduml

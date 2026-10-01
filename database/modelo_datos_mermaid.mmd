@@ -1,0 +1,131 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#EAF2FF",
+    "primaryTextColor": "#0F172A",
+    "primaryBorderColor": "#2563EB",
+    "lineColor": "#475569",
+    "tertiaryColor": "#F8FAFC",
+    "fontFamily": "Segoe UI, Arial, sans-serif",
+    "fontSize": "14px"
+  }
+}}%%
+
+erDiagram
+    direction LR
+
+    PACIENTE {
+        bigint paciente_id PK
+        varchar ci UK
+        varchar nombredb_clinica_sur
+        varchar apellido
+        date fecha_nacimiento
+        varchar telefono
+        varchar email
+        timestamptz fecha_registro
+        boolean activo
+    }
+
+    ESPECIALIDAD {
+        bigint especialidad_id PK
+        varchar nombre UK
+        varchar descripcion
+        varchar estado
+    }
+
+    MEDICO {
+        bigint medico_id PK
+        bigint especialidad_id FK
+        varchar nombre
+        varchar apellido
+        varchar matricula UK
+        varchar estado
+    }
+
+    CONSULTORIO {
+        bigint consultorio_id PK
+        varchar nombre UK
+        varchar ubicacion
+        varchar estado
+    }
+
+    CITA {
+        bigint cita_id PK
+        bigint paciente_id FK
+        bigint medico_id FK
+        bigint consultorio_id FK
+        date fecha_cita
+        time hora_programada
+        timestamptz fecha_llegada
+        varchar estado
+        varchar motivo
+        timestamptz fecha_creacion
+        timestamptz fecha_actualizacion
+    }
+
+    ATENCION {
+        bigint atencion_id PK
+        bigint cita_id FK, UK
+        timestamptz inicio_atencion
+        timestamptz fin_atencion
+        varchar estado
+        varchar observacion
+    }
+
+    REGISTRO_CLINICO {
+        bigint registro_clinico_id PK
+        bigint atencion_id FK, UK
+        varchar motivo_consulta
+        varchar diagnostico
+        varchar tratamiento
+        varchar indicaciones
+        timestamptz fecha_registro
+    }
+
+    PAGO {
+        bigint pago_id PK
+        bigint atencion_id FK
+        numeric monto
+        char moneda
+        varchar metodo
+        varchar estado
+        timestamptz fecha_pago
+        varchar referencia
+        timestamptz fecha_registro
+    }
+
+    DOCUMENTO_S3 {
+        bigint documento_id PK
+        bigint paciente_id FK
+        bigint atencion_id FK
+        varchar categoria
+        varchar nombre_archivo
+        varchar s3_bucket
+        varchar s3_object_key "Unico junto con s3_bucket"
+        varchar s3_etag
+        varchar tipo_mime
+        varchar visibilidad
+        timestamptz fecha_carga
+    }
+
+    AUDITORIA_EVENTO {
+        bigint auditoria_id PK
+        varchar tabla_afectada
+        varchar registro_id
+        varchar operacion
+        varchar usuario_bd
+        timestamptz fecha_evento
+    }
+
+    ESPECIALIDAD ||--o{ MEDICO : clasifica
+    PACIENTE ||--o{ CITA : solicita
+    MEDICO ||--o{ CITA : atiende
+    CONSULTORIO ||--o{ CITA : asigna
+    CITA ||--o| ATENCION : genera
+    ATENCION ||--o| REGISTRO_CLINICO : documenta
+    ATENCION ||--o{ PAGO : recibe
+    PACIENTE ||--o{ DOCUMENTO_S3 : posee
+    ATENCION o|--o{ DOCUMENTO_S3 : adjunta
+
+%% AUDITORIA_EVENTO registra cambios de las tablas sensibles mediante triggers.
+%% No se dibujan claves foraneas hacia auditoria porque su referencia es generica.

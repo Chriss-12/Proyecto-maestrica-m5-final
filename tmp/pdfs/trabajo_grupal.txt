@@ -1,0 +1,136 @@
+                       UNIVERSIDAD MAYOR DE SAN ANDRES
+
+             MAESTRÍA EN INTELIGENCIA ARTIFICIAL Y DATA SCIENCE
+                  PARA LA TRANSFORMACION DE NEGOCIOS
+
+       MÓDULO V: ECOSISTEMA DE NEGOCIOS Y ARQUITECTURAS DE DATOS
+                        Ronny Bazan Antequera, Ph.D.
+
+
+
+       Tarea grupal: Diseño de una Arquitectura de Datos para un Negocio en AWS
+
+Objetivo: Diseñar una arquitectura básica de datos en AWS para apoyar un caso de negocio
+pequeño, identificando cómo se generan, almacenan, organizan y protegen los datos, y
+cómo estos pueden utilizarse para definir KPI y OKR.
+
+Caso de uso
+
+Cada grupo seleccionará una organización sencilla, por ejemplo:
+
+   •    Tienda en línea
+   •    Restaurante
+   •    Hotel
+   •    Clínica
+   •    Empresa de transporte
+   •    Empresa de servicios
+
+La organización genera datos de clientes, productos, servicios, ventas, transacciones u
+operaciones y desea utilizar AWS para centralizar su información y apoyar la toma de
+decisiones.
+
+La arquitectura deberá incluir obligatoriamente:
+
+   •    Amazon RDS: datos estructurados.
+
+   •    Amazon S3: archivos, reportes, imágenes o datos históricos.
+
+   •    AWS IAM: usuarios, roles y permisos.
+
+El grupo podrá incorporar uno o dos servicios AWS adicionales si son necesarios.
+Distribución del trabajo
+
+          Integrante                                   Responsabilidad
+ 1. Negocio y estrategia          Describir el negocio, identificar necesidades y definir los
+                                  OKR.
+ 2. Datos y RDS                   Identificar los datos estructurados, diseñar tablas
+                                  básicas y definir datos necesarios para los KPI.
+ 3. S3 y análisis de              Determinar qué información será almacenada en S3 y
+ información                      proponer los principales KPI del negocio.
+ 4. IAM y arquitectura            Definir roles y permisos, integrar los servicios y construir
+                                  el diagrama final de arquitectura. Incluye la
+                                  presentación de un sitio web en AWS S3.
+
+
+Actividades
+
+El grupo deberá:
+
+   1. Describir brevemente el negocio y un problema o necesidad que pueda ser
+      mejorado mediante el uso de datos.
+
+   2. Identificar al menos cinco tipos de datos relevantes para la organización.
+
+   3. Clasificar qué información será almacenada en Amazon RDS y cuál en Amazon S3.
+
+   4. Definir al menos tres usuarios o roles y establecer sus permisos básicos mediante
+      AWS IAM.
+
+   5. Crear un diagrama sencillo de arquitectura AWS mostrando:
+      Usuarios → IAM → RDS / S3 → uso de los datos para análisis y toma de
+      decisiones.
+
+   6. Definir 3 KPI relacionados con el negocio. Para cada KPI indicar:
+
+          o   Nombre.
+
+          o   Qué mide.
+
+          o   Datos necesarios.
+
+          o   Fórmula o método de cálculo.
+
+          o   Fuente de los datos dentro de la arquitectura.
+
+Ejemplos: ventas mensuales, promedio de compra por cliente, número de nuevos clientes,
+porcentaje de ocupación, tiempo promedio de atención.
+   7. Definir al menos 1 OKR, compuesto por:
+
+           o   1 Objetivo: resultado estratégico que se desea alcanzar.
+
+           o   3 Key Results: resultados medibles que permitirán determinar si el objetivo
+               fue alcanzado.
+
+Ejemplo:
+
+Objetivo: Incrementar las ventas digitales durante el próximo trimestre.
+
+KR1: Incrementar las ventas mensuales en 15%.
+KR2: Incrementar el número de clientes recurrentes en 10%.
+KR3: Incrementar el valor promedio de compra en 8%.
+
+   8. Explicar brevemente cómo los datos almacenados en AWS permiten calcular los
+      KPI y evaluar el cumplimiento de los OKR.
+
+Entregable
+
+Presentar un documento grupal de 4 a 6 páginas incluyendo:
+
+   •   Descripción del caso de negocio.
+
+   •   Tipos de datos identificados.
+
+   •   Uso de Amazon RDS y Amazon S3.
+
+   •   Usuarios, roles y permisos mediante IAM.
+
+   •   Diagrama de arquitectura AWS.
+
+   •   Tabla con los 3 KPI.
+
+   •   1 OKR con 3 Key Results.
+
+   •   Breve conclusión sobre cómo la arquitectura de datos propuesta apoya la toma de
+       decisiones.
+
+
+
+Exposición final
+
+Cada grupo tendrá 15 minutos máximo para exponer durante la última sesión para este
+módulo.
+
+El objetivo principal de la actividad es relacionar:
+
+Estrategia del negocio → Datos → Arquitectura AWS → KPI → OKR → Toma de decisiones.
+
