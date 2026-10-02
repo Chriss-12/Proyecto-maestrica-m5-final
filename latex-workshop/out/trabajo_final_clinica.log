@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.6)  1 OCT 2026 10:09
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.6)  1 OCT 2026 13:57
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -692,23 +692,23 @@ Underfull \hbox (badness 10000) in paragraph at lines 288--288
 []|\T1/lmr/m/n/10 (+20) FK, UNI-
  []
 
-<figures/modelo_datos_plantuml.png, id=115, 2472.23625pt x 2340.745pt>
+<figures/modelo_datos_plantuml.png, id=115, 2420.04124pt x 2198.2125pt>
 File: figures/modelo_datos_plantuml.png Graphic file (type png)
 <use figures/modelo_datos_plantuml.png>
-Package pdftex.def Info: figures/modelo_datos_plantuml.png  used on input line 295.
-(pdftex.def)             Requested size: 491.9485pt x 465.7834pt.
+Package pdftex.def Info: figures/modelo_datos_plantuml.png  used on input line 294.
+(pdftex.def)             Requested size: 491.9485pt x 446.84624pt.
 [3] [4 <./figures/modelo_datos_plantuml.png (PNG copy)>]
-Underfull \hbox (badness 10000) in paragraph at lines 360--360
+Underfull \hbox (badness 10000) in paragraph at lines 359--359
 []|\T1/lmr/m/n/8 (+20) Amazon RDS:
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 360--360
+Underfull \hbox (badness 10000) in paragraph at lines 359--359
 \T1/lmr/m/n/8 (+20) ES-PE-CIA-LI-DAD,
  []
 
 [5{i:/Programas II/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{i:/Programas II/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}]
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 468.
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 467.
  (i:/Programas II/texlive/2026/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -728,15 +728,15 @@ Package rerunfilecheck Info: File `trabajo_final_clinica.out' has not changed.
 (rerunfilecheck)             Checksum: 31E0FADDF6F33F9AB527198030528070;3915.
  ) 
 Here is how much of TeX's memory you used:
- 25533 strings out of 467525
- 479553 string characters out of 5416325
+ 25531 strings out of 467525
+ 479531 string characters out of 5416325
  951157 words of memory out of 5000000
  53889 multiletter control sequences out of 15000+600000
- 690499 words of font info for 134 fonts, out of 8000000 for 9000
+ 690416 words of font info for 133 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,12n,94p,1082b,835s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <i:/Programas II/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><i:/Programas II/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><i:/Programas II/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx8.pfb><i:/Programas II/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr10.pfb><i:/Programas II/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr12.pfb><i:/Programas II/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr8.pfb><i:/Programas II/texlive/2026/texmf-dist/fonts/type1/public/lm/lmri10.pfb><i:/Programas II/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><i:/Programas II/texlive/2026/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
-Output written on out/trabajo_final_clinica.pdf (8 pages, 858629 bytes).
+Output written on out/trabajo_final_clinica.pdf (8 pages, 832055 bytes).
 PDF statistics:
  200 PDF objects out of 1000 (max. 8388607)
  166 compressed objects within 2 object streams

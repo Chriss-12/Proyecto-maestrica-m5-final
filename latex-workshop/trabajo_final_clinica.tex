@@ -288,12 +288,11 @@ almacenaran en Amazon S3.
 \end{tabularx}
 \end{center}
 
-% IMAGEN PENDIENTE: exportar database/modelo_datos_plantuml.puml como
-% latex-workshop/figures/modelo_datos_plantuml.pdf y sustituir el marcador por:
+% Figura generada desde database/modelo_datos_plantuml.puml.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{figures/modelo_datos_plantuml.png}
-  \caption{Base de datos relacional de la clinica}
+  \caption{Modelo entidad-relacion de Amazon RDS: tablas base y ampliaciones justificadas}
 \end{figure}
 
 
@@ -464,11 +463,12 @@ servicios medicos, mejorar su gestion y apoyar la toma de decisiones.
 
 El KR1 se evalua mediante los estados \emph{CANCELADA} y \emph{NO\_ATENDIDA} de la cita. El KR3
 identifica pacientes atendidos que ya contaban con una atencion completada en un periodo anterior.
-El modelo base permite calcular el retraso respecto de la hora programada comparando
+El modelo permite calcular el retraso respecto de la hora programada comparando
 \texttt{ATENCION.fecha\_atencion} con \texttt{CITA.fecha\_cita} y
 \texttt{CITA.hora\_programada}. Para medir el tiempo real de espera desde la llegada del paciente,
-se requiere agregar \texttt{CITA.fecha\_llegada}; este campo se considera una ampliacion tecnica y
-debe ser aprobado por el grupo antes de incorporarlo al modelo base.
+se incorpora \texttt{CITA.fecha\_llegada} como ampliacion tecnica. La diferencia entre
+\texttt{CITA.fecha\_llegada} y \texttt{ATENCION.fecha\_atencion} permite evaluar directamente el
+KR2 sin alterar las tablas basicas definidas por el grupo.
 
 \section{Conclusion}
 

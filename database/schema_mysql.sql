@@ -582,8 +582,8 @@ DELIMITER ;
 -- cita         1 ---- 0..1 atencion
 -- atencion     1 ---- 0..1 registro_clinico
 -- atencion     1 ---- N pago
--- paciente     1 ---- N documento_s3
--- atencion     1 ---- N documento_s3 (opcional)
+-- paciente     0..1 ---- N documento_s3 (los reportes generales no requieren paciente)
+-- atencion     0..1 ---- N documento_s3
 --
 -- AWS IAM se administra fuera de MySQL. El sitio web publico y los documentos
 -- clinicos privados deben usar buckets o prefijos con politicas separadas.

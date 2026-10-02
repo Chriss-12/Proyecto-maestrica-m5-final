@@ -134,9 +134,6 @@ package "Ampliaciones del proyecto" #F0FDF4 {
         * visibilidad : VARCHAR(20)
         * fecha_carga : TIMESTAMP
     }
-}
-
-package "Auditoria" #FAF5FF {
 
     entity "AUDITORIA_EVENTO" as AUDITORIA_EVENTO #F3E8FF {
         * <b><color:#1D4ED8>PK</color></b> auditoria_id : BIGINT
@@ -158,12 +155,6 @@ ATENCION ||--o| REGISTRO_CLINICO : documenta
 ATENCION ||--o{ PAGO : recibe
 PACIENTE |o--o{ DOCUMENTO_S3 : posee
 ATENCION |o--o{ DOCUMENTO_S3 : adjunta
-
-note bottom of AUDITORIA_EVENTO
-  Registra cambios mediante triggers.
-  La referencia es generica, por eso
-  no utiliza claves foraneas directas.
-end note
 
 legend right
   |= Elemento |= Significado |

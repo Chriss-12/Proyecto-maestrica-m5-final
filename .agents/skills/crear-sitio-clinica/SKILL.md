@@ -7,6 +7,17 @@ description: Crear o actualizar el sitio web estatico de una sola pagina para pr
 
 Crear una pagina informativa profesional que explique la propuesta academica de forma clara y verificable.
 
+## Coordinacion de agentes
+
+Para una creacion completa, una renovacion visual importante o una revision amplia, leer
+[references/agentes-frontend.md](references/agentes-frontend.md). Distribuir el analisis entre los
+perfiles de direccion visual, HTML/accesibilidad, CSS responsive y JavaScript/QA cuando el trabajo
+paralelo aporte valor. Para cambios pequenos, aplicar directamente las mismas perspectivas sin
+delegacion.
+
+Los perfiles especializados no deben editar simultaneamente el `index.html`. El agente principal
+conserva la responsabilidad de integrar una unica version, resolver contradicciones y verificarla.
+
 ## Entregable
 
 - Producir un unico archivo `index.html` con HTML5 semantico, CSS y JavaScript integrados.
@@ -44,6 +55,8 @@ Usar JavaScript solo cuando mejore la comprension, por ejemplo para navegacion, 
 - Revisar el archivo en vista de escritorio y movil.
 - Confirmar que no hay desbordamientos, enlaces rotos, texto de relleno ni instrucciones internas del equipo.
 - Verificar que los nombres de servicios AWS, formulas y relaciones coincidan con el documento final.
+- Confirmar que el HTML sea valido, que la consola no muestre errores y que la pagina siga siendo comprensible sin JavaScript.
+- Revisar contraste, foco visible, navegacion por teclado y `prefers-reduced-motion`.
 - No publicar en AWS hasta que el usuario lo solicite expresamente y autorice la operacion.
 
 ## Publicacion en S3
@@ -55,4 +68,3 @@ Cuando se autorice la publicacion:
 - Mostrar el plan de cambios antes de crear, reemplazar o hacer publico un recurso.
 - Aplicar acceso publico solo al bucket o prefijo del sitio. Mantener completamente privados los documentos clinicos.
 - Tras publicar, comprobar la URL y conservar evidencia no sensible del resultado.
-

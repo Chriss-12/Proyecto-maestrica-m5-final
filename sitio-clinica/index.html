@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="es" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Propuesta académica de arquitectura de datos en AWS para la Clínica del Sur.">
+  <meta name="theme-color" content="#04101f">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2322d3ee'/%3E%3Cpath d='M13 5h6v8h8v6h-8v8h-6v-8H5v-6h8z' fill='%23030b1d'/%3E%3C/svg%3E">
+  <title>Clínica del Sur | Arquitectura de datos en AWS</title>
+  <script>document.documentElement.className = "js";</script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --navy-950:#030b1d; --navy-900:#07152d; --navy-850:#0a1c3c;
+      --navy-800:#0d2850; --blue-600:#2563eb; --blue-500:#3b82f6;
+      --cyan-400:#22d3ee; --cyan-300:#67e8f9; --violet:#818cf8;
+      --white:#f8fbff; --text:#dce8f8; --muted:#a9bcd5;
+      --line:rgba(148,190,225,.19); --surface:rgba(10,28,60,.72);
+      --surface-strong:rgba(7,21,45,.94); --green:#34d399; --amber:#fbbf24;
+      --gradient-brand:linear-gradient(125deg,#3b82f6,#22d3ee);
+      --gradient-page:radial-gradient(circle at 10% 8%,rgba(37,99,235,.22),transparent 31rem),radial-gradient(circle at 91% 24%,rgba(34,211,238,.13),transparent 27rem),linear-gradient(145deg,#030b1d,#07152d 48%,#061329);
+      --gradient-card:linear-gradient(145deg,rgba(18,49,94,.76),rgba(7,21,45,.84));
+      --shadow:0 24px 70px rgba(0,4,18,.38); --radius:1.35rem;
+      --content:74rem; --header:4.8rem; --ease:cubic-bezier(.2,.8,.2,1);
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:calc(var(--header) + 1rem)}
+    body{min-width:20rem;margin:0;overflow-x:hidden;font-family:"Segoe UI Variable","Segoe UI",system-ui,sans-serif;color:var(--text);background:var(--gradient-page);line-height:1.65}
+    body::before{position:fixed;inset:0;z-index:-2;pointer-events:none;content:"";opacity:.16;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:4rem 4rem;mask-image:linear-gradient(to bottom,#000,transparent 88%)}
+    body.presentation-open{overflow:hidden}
+    [hidden]{display:none!important} img,svg{display:block;max-width:100%} button,a{font:inherit} a{color:var(--cyan-300)}
+    :focus-visible{outline:3px solid var(--cyan-300);outline-offset:4px;border-radius:.35rem}
+    .skip-link{position:fixed;z-index:5000;top:.75rem;left:.75rem;padding:.7rem 1rem;color:var(--navy-950);background:#fff;border-radius:.6rem;transform:translateY(-180%)}
+    .skip-link:focus{transform:none}.container{width:min(calc(100% - 2rem),var(--content));margin-inline:auto}
+    .section{position:relative;padding-block:clamp(4.5rem,9vw,8rem)}
+    .section--soft{background:linear-gradient(180deg,transparent,rgba(12,39,70,.28),transparent)}
+    .section-heading{max-width:48rem;margin-bottom:clamp(2rem,5vw,3.75rem)}
+    .eyebrow{display:inline-flex;align-items:center;gap:.5rem;margin:0 0 .85rem;color:var(--cyan-300);font-size:.78rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+    .eyebrow::before{width:1.8rem;height:2px;content:"";background:var(--gradient-brand)}
+    h1,h2,h3{margin-top:0;color:var(--white);line-height:1.08;text-wrap:balance}
+    h1{max-width:13ch;font-size:clamp(3rem,8vw,6.4rem);letter-spacing:-.055em}
+    h2{font-size:clamp(2rem,5vw,3.7rem);letter-spacing:-.035em} h3{font-size:clamp(1.1rem,2vw,1.4rem)}
+    p{max-width:70ch}.lead{color:var(--muted);font-size:clamp(1.05rem,2vw,1.25rem)}
+    .muted{color:var(--muted)}.status{display:inline-flex;gap:.45rem;align-items:center;padding:.35rem .7rem;border:1px solid var(--line);border-radius:99px;color:var(--muted);font-size:.78rem}
+    .status::before{width:.5rem;aspect-ratio:1;content:"";border-radius:50%;background:var(--cyan-400);box-shadow:0 0 16px var(--cyan-400)}
+    .site-header{position:sticky;z-index:1000;top:0;min-height:var(--header);border-bottom:1px solid var(--line);background:rgba(3,11,29,.78);backdrop-filter:blur(18px) saturate(135%)}
+    .scroll-progress{position:absolute;right:0;bottom:-1px;left:0;height:2px;background:linear-gradient(90deg,var(--cyan-400) var(--scroll,0%),transparent 0)}
+    .nav{min-height:var(--header);display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    .brand{display:inline-flex;align-items:center;gap:.75rem;color:var(--white);font-weight:800;text-decoration:none}
+    .brand-mark{display:grid;width:2.5rem;aspect-ratio:1;place-items:center;color:var(--navy-950);background:var(--gradient-brand);border-radius:.8rem;box-shadow:0 0 40px rgba(34,211,238,.18)}
+    .brand-mark svg{width:1.55rem}.nav-links{display:flex;align-items:center;gap:.2rem;margin:0;padding:0;list-style:none}
+    .nav-links a{display:block;padding:.65rem .72rem;color:var(--muted);text-decoration:none;border-radius:.65rem}
+    .nav-links a:hover,.nav-links a[aria-current="page"]{color:var(--white);background:rgba(59,130,246,.14)}
+    .nav-toggle{display:none;width:2.8rem;aspect-ratio:1;color:#fff;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:.75rem}
+    .button{min-height:3rem;display:inline-flex;align-items:center;justify-content:center;gap:.55rem;padding:.75rem 1.15rem;color:var(--white);font-weight:750;text-decoration:none;border:1px solid var(--line);border-radius:.85rem;background:rgba(255,255,255,.05);cursor:pointer;transition:transform .2s var(--ease),border-color .2s var(--ease),box-shadow .2s var(--ease)}
+    .button--primary{color:var(--navy-950);border-color:transparent;background:var(--gradient-brand);box-shadow:0 14px 36px rgba(37,99,235,.28)}
+    .button:hover{transform:translateY(-2px);border-color:rgba(103,232,249,.48);box-shadow:0 0 42px rgba(34,211,238,.16)}
+    .hero{min-height:min(54rem,calc(100svh - var(--header)));display:grid;align-items:center;overflow:clip}
+    .hero-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(18rem,.85fr);align-items:center;gap:clamp(2rem,7vw,6rem)}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:2rem}.hero-note{margin-top:1.3rem;color:var(--muted);font-size:.88rem}
+    .hero-visual{position:relative;min-height:28rem;display:grid;place-items:center}
+    .orbit{position:absolute;width:min(100%,25rem);aspect-ratio:1;border:1px solid rgba(103,232,249,.22);border-radius:50%;box-shadow:inset 0 0 70px rgba(37,99,235,.1),0 0 80px rgba(34,211,238,.1);animation:rotate 28s linear infinite}
+    .orbit::before,.orbit::after{position:absolute;content:"";border:inherit;border-radius:inherit}.orbit::before{inset:13%}.orbit::after{inset:29%}
+    .core{position:relative;z-index:2;width:11rem;aspect-ratio:1;display:grid;place-items:center;text-align:center;background:var(--gradient-card);border:1px solid rgba(103,232,249,.28);border-radius:2rem;box-shadow:var(--shadow)}
+    .pulse{position:absolute;z-index:3;width:125%;height:4rem}.pulse path{fill:none;stroke:var(--cyan-300);stroke-width:2;stroke-linecap:round;stroke-dasharray:8 8;animation:pulse 5s linear infinite}
+    .float-card{position:absolute;z-index:3;padding:.75rem 1rem;border:1px solid var(--line);border-radius:.9rem;background:var(--surface-strong);box-shadow:var(--shadow);font-size:.82rem}.float-card strong{display:block;color:#fff}.fc-1{top:12%;left:0}.fc-2{right:0;bottom:18%}
+    @keyframes rotate{to{transform:rotate(360deg)}}@keyframes pulse{to{stroke-dashoffset:-80}}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+    .card{position:relative;overflow:hidden;padding:clamp(1.25rem,3vw,1.8rem);border:1px solid var(--line);border-radius:var(--radius);background:var(--gradient-card);box-shadow:0 12px 32px rgba(0,5,20,.22)}
+    .card::before{position:absolute;inset:0 auto 0 0;width:3px;content:"";background:var(--gradient-brand)}
+    .card-icon{width:2.8rem;aspect-ratio:1;display:grid;margin-bottom:1rem;place-items:center;color:var(--cyan-300);background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.2);border-radius:.85rem}
+    .card p:last-child{margin-bottom:0}.journey{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-top:1.5rem;counter-reset:step}
+    .journey span{padding:1rem;border:1px solid var(--line);border-radius:1rem;background:rgba(3,11,29,.5);text-align:center}.journey span::before{display:block;counter-increment:step;content:"0" counter(step);color:var(--cyan-300);font-size:.75rem;font-weight:800}
+    .architecture{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.8rem;align-items:stretch}
+    .architecture-node{position:relative;min-height:13rem;display:flex;flex-direction:column;justify-content:space-between;padding:1.3rem;background:var(--surface-strong);border:1px solid rgba(96,165,250,.28);border-radius:var(--radius)}
+    .architecture-node:not(:last-child)::after{position:absolute;top:50%;right:-.8rem;width:.8rem;height:2px;content:"";background:var(--cyan-400)}
+    .service-tag{align-self:flex-start;padding:.3rem .6rem;color:var(--cyan-300);font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(34,211,238,.09);border-radius:99px}
+    .model-toolbar{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1rem}.filter{padding:.6rem .9rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:99px;cursor:pointer}.filter.is-active{color:var(--navy-950);background:var(--cyan-300)}
+    .entity-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.8rem}.entity{min-height:10rem}.entity[data-kind="extension"]{border-color:rgba(52,211,153,.35)}.entity[data-kind="audit"]{border-color:rgba(129,140,248,.48)}.entity.is-dimmed{opacity:.25;filter:saturate(.3)}
+    .entity small{color:var(--cyan-300);font-weight:800}.entity ul{padding-left:1.1rem;color:var(--muted);font-size:.86rem}
+    .kpi-card{min-height:20rem;display:flex;flex-direction:column}.kpi-mark{margin:auto 0 1rem;color:var(--white);font-size:clamp(2.5rem,5vw,4.2rem);font-weight:850;letter-spacing:-.06em}.kpi-card .status{align-self:flex-start}
+    .role-tabs{display:grid;grid-template-columns:minmax(13rem,.38fr) 1fr;gap:1rem}.role-list{display:grid;gap:.6rem}.role-button{padding:1rem;color:var(--text);text-align:left;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:.9rem;cursor:pointer}.role-button.is-active{color:var(--navy-950);background:var(--cyan-300)}.role-panel{min-height:17rem}.role-panel ul{padding-left:1.2rem}
+    .okr{display:grid;grid-template-columns:.8fr 1.2fr;gap:1rem}.objective{display:flex;flex-direction:column;justify-content:center;background:linear-gradient(145deg,rgba(37,99,235,.3),rgba(7,21,45,.88))}.kr-list{display:grid;gap:.8rem}.kr{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:center}.kr-value{display:grid;width:4.5rem;aspect-ratio:1;place-items:center;color:var(--navy-950);font-weight:900;background:var(--gradient-brand);border-radius:50%}
+    .team{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem}.person{min-height:14rem;display:flex;flex-direction:column;justify-content:flex-end}.initials{width:3.8rem;aspect-ratio:1;display:grid;margin-bottom:auto;place-items:center;color:var(--navy-950);font-weight:900;background:var(--gradient-brand);border-radius:50%}
+    .presentation-launch{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2rem;padding:clamp(2rem,5vw,4rem);border:1px solid rgba(103,232,249,.24);border-radius:2rem;background:radial-gradient(circle at 85% 20%,rgba(34,211,238,.16),transparent 18rem),var(--surface-strong);box-shadow:var(--shadow)}
+    .site-footer{padding:2rem 0;border-top:1px solid var(--line);color:var(--muted)}.footer-grid{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+    .presentation{position:fixed;z-index:3000;inset:0;color:var(--white);background:radial-gradient(circle at 80% 15%,rgba(37,99,235,.28),transparent 38%),var(--navy-950)}
+    .presentation.is-open{display:grid;grid-template-rows:auto 1fr auto}.presentation-toolbar,.presentation-controls{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem clamp(1rem,3vw,2rem);border-color:var(--line);background:rgba(3,11,29,.82);backdrop-filter:blur(18px)}.presentation-toolbar{border-bottom:1px solid var(--line)}.presentation-controls{border-top:1px solid var(--line)}
+    .slide-deck{position:relative;overflow:hidden}.slide{position:absolute;inset:0;display:grid;align-content:center;padding:clamp(2rem,8vw,7rem);opacity:0;visibility:hidden;transform:translateX(4%);transition:opacity .38s var(--ease),transform .38s var(--ease),visibility .38s}.slide.is-active{opacity:1;visibility:visible;transform:none}.slide-label{color:var(--cyan-300);font-size:.8rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.slide h2{max-width:17ch;margin:.7rem 0 1.25rem;font-size:clamp(2.3rem,7vw,6rem)}.slide-content{max-width:68rem}.slide-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.slide-list{display:grid;gap:.65rem;padding:0;list-style:none}.slide-list li{padding:.8rem 1rem;border-left:2px solid var(--cyan-400);background:rgba(255,255,255,.04)}
+    .icon-button{width:2.75rem;aspect-ratio:1;display:grid;place-items:center;color:#fff;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:.75rem;cursor:pointer}.toolbar-actions{display:flex;gap:.55rem}.slide-progress{flex:1;max-width:22rem;height:.35rem;overflow:hidden;background:rgba(148,163,184,.15);border-radius:99px}.slide-progress span{display:block;width:var(--slide-progress,10%);height:100%;background:var(--gradient-brand);transition:width .3s var(--ease)}
+    .js .reveal{opacity:0;transform:translateY(1.2rem);transition:opacity .55s var(--ease),transform .55s var(--ease)}.js .reveal.is-visible{opacity:1;transform:none}
+    @media(max-width:68rem){.hero-grid{grid-template-columns:1fr}.hero-visual{min-height:22rem}.architecture{grid-template-columns:repeat(2,1fr)}.architecture-node::after{display:none}.entity-grid{grid-template-columns:repeat(3,1fr)}.grid-3{grid-template-columns:repeat(2,1fr)}.team{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:48rem){:root{--header:4.3rem}.nav-toggle{display:grid}.nav-links{position:absolute;top:calc(100% + .5rem);right:1rem;left:1rem;display:none;padding:.65rem;background:var(--surface-strong);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.nav-links.is-open{display:grid}.nav-links a{padding:.85rem}.hero{min-height:auto;padding-block:4rem}.hero-actions .button{width:100%}.hero-visual{min-height:18rem}.float-card{display:none}.grid-2,.grid-3,.architecture,.entity-grid,.team,.okr,.slide-columns{grid-template-columns:1fr}.journey{grid-template-columns:1fr 1fr}.role-tabs{grid-template-columns:1fr}.presentation-launch{grid-template-columns:1fr}.slide{padding:1.5rem;align-content:start;overflow-y:auto}.presentation-toolbar .presentation-name,.keyboard-hint{display:none}.presentation-controls{gap:.6rem}.button{min-height:2.8rem}.slide h2{font-size:clamp(2.1rem,12vw,4rem)}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.js .reveal{opacity:1;transform:none}}
+    /* Tema clinico claro solicitado en el brief */
+    body{color:#334155;background:#f4f8fa}
+    body::before{opacity:.42;background-image:linear-gradient(rgba(36,123,160,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(36,123,160,.045) 1px,transparent 1px);mask-image:linear-gradient(to bottom,#000,transparent 72%)}
+    h1,h2,h3{color:#0f3d5e}.lead,.muted{color:#64748b}.eyebrow{color:#167f8a}.eyebrow::before{background:#16a6a1}
+    .site-header{background:rgba(255,255,255,.96);border-color:#dce6f0;box-shadow:0 4px 18px rgba(15,61,94,.06);backdrop-filter:none}
+    .brand{color:#0f3d5e}.brand-mark{color:#fff;background:#16a6a1;box-shadow:none}.nav-links a{color:#52677d}.nav-links a:hover,.nav-links a[aria-current="page"]{color:#0f3d5e;background:#eaf4f7}
+    .nav-toggle{color:#0f3d5e;background:#fff;border-color:#dce6f0}.scroll-progress{background:linear-gradient(90deg,#16a6a1 var(--scroll,0%),transparent 0)}
+    .button{color:#0f3d5e;background:#fff;border-color:#cbdbe7}.button--primary{color:#fff;background:#0f3d5e;box-shadow:0 10px 24px rgba(15,61,94,.16)}.button:hover{border-color:#16a6a1;box-shadow:0 10px 24px rgba(15,61,94,.1)}
+    .hero{background:linear-gradient(135deg,#eff7ff 0%,#f8fbfe 55%,#edf9f8 100%);border-bottom:1px solid #e2ebf2}.hero-note{color:#64748b}
+    .orbit{border-color:rgba(36,123,160,.22);box-shadow:inset 0 0 60px rgba(36,123,160,.06)}.core{color:#fff;background:#0f3d5e;border-color:#247ba0;box-shadow:0 18px 45px rgba(15,61,94,.16)}.pulse path{stroke:#16a6a1}.float-card{color:#334155;background:#fff;border-color:#dce6f0;box-shadow:0 10px 28px rgba(15,39,66,.08)}.float-card strong{color:#0f3d5e}
+    .section--soft{background:#eef5f8}.card,.architecture-node{color:#334155;background:#fff;border-color:#dce6f0;box-shadow:0 10px 28px rgba(15,39,66,.07)}.card::before{background:#16a6a1}.card-icon{color:#0f3d5e;background:#e4f6f4;border-color:#b9e4df}
+    .journey span{color:#334155;background:#fff;border-color:#dce6f0}.journey span::before{color:#168c8c}.architecture-node{background:#fff}.architecture-node:not(:last-child)::after{background:#16a6a1}.service-tag{color:#0f3d5e;background:#e4f6f4}
+    .filter{color:#475569;background:#fff;border-color:#dce6f0}.filter.is-active{color:#fff;background:#0f3d5e}.entity small{color:#167f8a}.entity ul{color:#64748b}.entity[data-kind="extension"]{border-color:#a7dcd6}.entity[data-kind="audit"]{border-color:#bdc8ef}
+    .status{color:#52677d;background:#f7fafc;border-color:#dce6f0}.status::before{background:#16a6a1;box-shadow:none}.kpi-mark{color:#0f3d5e}.objective{background:linear-gradient(145deg,#eaf3fb,#fff)}.kr-value{color:#fff;background:#247ba0}
+    .role-button{color:#334155;background:#fff;border-color:#dce6f0}.role-button.is-active{color:#fff;background:#0f3d5e}.presentation-launch{background:linear-gradient(135deg,#0f3d5e,#247ba0);border:0;box-shadow:0 18px 45px rgba(15,61,94,.16)}.presentation-launch h2,.presentation-launch .lead,.presentation-launch .eyebrow{color:#fff}.presentation-launch .eyebrow::before{background:#fff}.site-footer{color:#64748b;background:#fff;border-color:#dce6f0}
+    .data-type,.tech-card,.decision-step,.role-card,.storage-card{background:#fff;border:1px solid #dce6f0;border-radius:1.1rem;box-shadow:0 10px 28px rgba(15,39,66,.06)}
+    .data-types,.tech-grid,.role-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}.data-type,.tech-card,.role-card{padding:1.25rem}.data-type span,.tech-card span{display:grid;width:2.6rem;aspect-ratio:1;margin-bottom:.8rem;place-items:center;color:#fff;background:#16a6a1;border-radius:.75rem;font-weight:800}
+    .storage-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.storage-card{padding:clamp(1.4rem,3vw,2rem)}.storage-card ul,.role-card ul{padding-left:1.2rem}.storage-badges{display:flex;flex-wrap:wrap;gap:.5rem}.storage-badges span{padding:.35rem .65rem;background:#eaf4f7;border-radius:99px;color:#0f3d5e;font-size:.82rem;font-weight:700}.privacy-note{margin-top:1rem;padding:1rem 1.2rem;color:#0f3d5e;background:#e4f6f4;border-left:4px solid #16a6a1;border-radius:.7rem}
+    .demo-label{display:inline-flex;margin:.6rem 0;padding:.25rem .55rem;color:#7c5b0c;background:#fff7d8;border-radius:99px;font-size:.72rem;font-weight:800;text-transform:uppercase}.mini-bars{height:6rem;display:flex;align-items:end;gap:.45rem;margin-top:1rem}.mini-bars i{flex:1;height:var(--h);background:#247ba0;border-radius:.35rem .35rem 0 0}.donut{width:6.5rem;aspect-ratio:1;margin:1rem auto;border-radius:50%;background:conic-gradient(#16a6a1 0 18%,#e4edf3 18%);display:grid;place-items:center}.donut::after{width:4.4rem;aspect-ratio:1;content:"18%";display:grid;place-items:center;background:#fff;border-radius:50%;color:#0f3d5e;font-weight:800}.horizontal-bars{display:grid;gap:.5rem;margin-top:1rem}.horizontal-bars i{display:block;width:var(--w);height:.65rem;background:#16a6a1;border-radius:99px}
+    .decision-flow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.6rem}.decision-step{min-width:8.3rem;padding:1rem;text-align:center;color:#0f3d5e;font-weight:800}.flow-arrow{color:#16a6a1;font-size:1.4rem}.decision-list{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:2rem}.decision-list li{padding:1rem;background:#fff;border:1px solid #dce6f0;border-radius:.9rem;list-style:none}
+    .presentation,.presentation h2,.presentation h3{color:#f8fbff}.presentation h2,.presentation h3{color:#f8fbff}.presentation .lead,.presentation .muted{color:#a9bcd5}.presentation .button{color:#f8fbff;background:rgba(255,255,255,.06);border-color:rgba(148,190,225,.19)}.presentation .button--primary{color:#030b1d;background:linear-gradient(125deg,#3b82f6,#22d3ee)}
+    @media(max-width:68rem){.data-types,.tech-grid,.role-cards{grid-template-columns:repeat(2,1fr)}.decision-list{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:48rem){.nav-links{background:#fff;border-color:#dce6f0}.data-types,.tech-grid,.role-cards,.storage-grid,.decision-list{grid-template-columns:1fr}.decision-flow{align-items:stretch;flex-direction:column}.flow-arrow{transform:rotate(90deg);text-align:center}.presentation-launch{padding:2rem}}
+    @media print{.site-header,.hero-actions,.presentation,.presentation-launch .button{display:none!important}body{color:#111827;background:#fff}.card,.architecture-node{break-inside:avoid;color:#111827;background:#fff;border:1px solid #94a3b8;box-shadow:none}h1,h2,h3{color:#0f172a}}
+    /* Visión integral del sistema: bloque autocontenido para evitar dependencias externas. */
+    .system-deep-dive { color: #dceaff; background: #061326; padding: clamp(4rem, 8vw, 8rem) 0; }
+    .system-shell { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
+    .system-heading { max-width: 760px; margin-bottom: 3rem; }
+    .system-heading h2, .system-section-title h3, .system-project h3 { color: #fff; letter-spacing: -.035em; }
+    .system-heading h2 { font-size: clamp(2.3rem, 6vw, 5rem); line-height: .98; margin: .35rem 0 1.25rem; }
+    .system-heading > p:last-child, .system-section-title > p { color: #9fb8da; }
+    .system-eyebrow, .system-kicker, .system-role, .system-service, .system-demo { margin: 0; color: #62d7ff; font-size: .76rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .system-shell > section, .system-project { padding-block: clamp(2.7rem, 7vw, 5.5rem); border-top: 1px solid rgba(163, 198, 239, .15); }
+    .system-section-title { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .48fr); gap: 2rem; align-items: end; margin-bottom: 1.7rem; }
+    .system-section-title h3, .system-project h3 { font-size: clamp(1.8rem, 4vw, 3.25rem); line-height: 1.05; margin: .45rem 0 0; }
+    .system-project { display: grid; grid-template-columns: 1.3fr .7fr; gap: clamp(2rem, 7vw, 6rem); align-items: center; }
+    .system-project blockquote { margin: 0; padding: 1.5rem; color: #fff; font-size: clamp(1.1rem, 2.5vw, 1.55rem); line-height: 1.45; border: 1px solid rgba(98, 215, 255, .35); border-radius: 1.25rem; background: linear-gradient(145deg, rgba(12, 53, 96, .92), rgba(10, 27, 55, .9)); box-shadow: 0 24px 60px rgba(0, 0, 0, .2); }
+    .system-grid { display: grid; gap: 1rem; }
+    .system-grid-six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .system-grid-four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .system-grid-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .system-card { min-width: 0; padding: 1.35rem; border: 1px solid rgba(163, 198, 239, .16); border-radius: 1.2rem; background: linear-gradient(155deg, rgba(18, 52, 91, .72), rgba(8, 28, 56, .78)); box-shadow: 0 18px 45px rgba(0, 0, 0, .16); }
+    .system-card > span:first-child { display: block; color: #6ee7ff; font: 800 .72rem/1 system-ui, sans-serif; letter-spacing: .12em; }
+    .system-card h4 { margin: .65rem 0 .55rem; color: #fff; font-size: 1.1rem; }
+    .system-card p, .system-card li, .system-note { color: #b7c9e2; }
+    .system-note { margin: 1.25rem 0 0; padding: 1rem 1.15rem; border-left: 3px solid #36c6f4; border-radius: .3rem .8rem .8rem .3rem; background: rgba(32, 112, 175, .12); }
+    .system-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: stretch; }
+    .system-compare ul { padding-left: 1.2rem; }
+    .system-connector { align-self: center; color: #62d7ff; font-size: 1.65rem; }
+    .system-rds { border-color: rgba(52, 211, 153, .3); }
+    .system-s3 { border-color: rgba(251, 191, 36, .3); }
+    .system-flow { list-style: none; display: grid; grid-template-columns: repeat(5, 1fr); gap: .7rem; margin: 0; padding: 0; counter-reset: architecture; }
+    .system-flow li { position: relative; padding: 1.2rem 1rem; border: 1px solid rgba(98, 215, 255, .22); border-radius: 1rem; background: rgba(13, 45, 82, .75); }
+    .system-flow li:not(:last-child)::after { content: "→"; position: absolute; z-index: 2; top: 50%; right: -.75rem; transform: translateY(-50%); color: #62d7ff; font-weight: 900; }
+    .system-flow strong, .system-flow span { display: block; }
+    .system-flow strong { color: #fff; margin-bottom: .45rem; }
+    .system-flow span { color: #a9bdd8; font-size: .88rem; }
+    .system-metric { display: flex; flex-direction: column; }
+    .system-demo { margin-top: 1rem; color: #91a9c7; font-size: .65rem; }
+    .system-bars { height: 118px; display: flex; align-items: end; gap: .45rem; padding: .85rem; border-radius: .85rem; background: rgba(3, 16, 34, .55); }
+    .system-bars i { flex: 1; min-height: 18%; border-radius: .35rem .35rem .1rem .1rem; background: linear-gradient(#64ddff, #2563eb); }
+    .system-bars-month i:nth-child(1) { height: 38%; }.system-bars-month i:nth-child(2) { height: 54%; }.system-bars-month i:nth-child(3) { height: 46%; }.system-bars-month i:nth-child(4) { height: 72%; }.system-bars-month i:nth-child(5) { height: 64%; }.system-bars-month i:nth-child(6) { height: 86%; }
+    .system-bars-specialty i:nth-child(1) { height: 75%; }.system-bars-specialty i:nth-child(2) { height: 48%; }.system-bars-specialty i:nth-child(3) { height: 88%; }.system-bars-specialty i:nth-child(4) { height: 62%; }
+    .system-donut { width: 118px; aspect-ratio: 1; display: grid; place-items: center; align-self: center; border-radius: 50%; background: radial-gradient(circle, #0b2444 0 48%, transparent 49%), conic-gradient(#36c6f4 0 28%, #173d69 28% 100%); }
+    .system-donut span { display: grid; place-items: center; width: 50%; aspect-ratio: 1; color: #8ee5ff; font-size: 1.5rem; }
+    .system-okr { display: grid; grid-template-columns: .8fr 1.2fr; gap: 1rem; }
+    .system-okr > article { padding: 1.5rem; border-radius: 1.2rem; background: linear-gradient(140deg, #0d4d83, #12335d); }
+    .system-okr h4 { color: #fff; font-size: 1.35rem; }
+    .system-okr ol { list-style: none; display: grid; gap: .7rem; margin: 0; padding: 0; }
+    .system-okr li { display: grid; grid-template-columns: 105px 1fr; gap: 1rem; padding: 1.1rem; border: 1px solid rgba(163, 198, 239, .16); border-radius: 1rem; background: rgba(12, 38, 71, .8); }
+    .system-okr strong { color: #63dcff; }.system-okr span { color: #c4d3e8; }
+    .system-decision-flow { list-style: none; display: grid; grid-template-columns: repeat(5, 1fr); gap: .75rem; margin: 0; padding: 0; }
+    .system-decision-flow li { padding: 1.15rem; border-radius: 1rem; background: #0d2c52; }
+    .system-decision-flow span, .system-decision-flow strong, .system-decision-flow small { display: block; }
+    .system-decision-flow span { width: 2rem; height: 2rem; display: grid; place-items: center; margin-bottom: 1.1rem; color: #06203c; background: #67dcff; border-radius: 50%; font-weight: 900; }
+    .system-decision-flow strong { color: #fff; }.system-decision-flow small { margin-top: .4rem; color: #9fb6d2; }
+    .system-tech-list { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; margin: 0; padding: 0; }
+    .system-tech-list li { padding: 1rem; border: 1px solid rgba(163, 198, 239, .14); border-radius: .9rem; background: rgba(10, 35, 66, .75); }
+    .system-tech-list strong, .system-tech-list span { display: block; }.system-tech-list strong { color: #fff; }.system-tech-list span { color: #9eb5d1; font-size: .83rem; margin-top: .3rem; }
+
+    /* Sin JavaScript, la navegación móvil permanece disponible. */
+    @media (max-width: 800px) {
+      html:not(.js) .nav-links, html:not(.js) [data-menu-panel], html:not(.js) [data-nav-menu] { display: flex !important; position: static !important; visibility: visible !important; opacity: 1 !important; transform: none !important; height: auto !important; }
+      html:not(.js) .menu-toggle, html:not(.js) [data-menu-toggle] { display: none !important; }
+      .system-grid-six, .system-grid-four, .system-grid-three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .system-project, .system-section-title, .system-okr { grid-template-columns: 1fr; }
+      .system-flow, .system-decision-flow { grid-template-columns: 1fr; }
+      .system-flow li:not(:last-child)::after { content: "↓"; top: auto; right: 1.2rem; bottom: -.95rem; transform: none; }
+      .system-tech-list { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .system-grid-six, .system-grid-four, .system-grid-three, .system-compare, .system-tech-list { grid-template-columns: 1fr; }
+      .system-connector { justify-self: center; transform: rotate(90deg); }
+      .system-okr li { grid-template-columns: 1fr; gap: .25rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .system-deep-dive *, .system-deep-dive *::before, .system-deep-dive *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+/* Progressive enhancement: el contenido y la navegación siguen disponibles sin JavaScript. */
+@media (max-width: 760px) {
+  html:not(.js) .nav-links {
+    display: flex !important;
+    position: static !important;
+    width: 100%;
+    max-height: none !important;
+    overflow: visible !important;
+    flex-wrap: wrap;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+  html:not(.js) .nav-toggle { display: none !important; }
+  .decision-flow { flex-direction: column; align-items: stretch; }
+  .flow-arrow { transform: rotate(90deg); align-self: center; }
+}
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+  <header class="site-header">
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <nav class="nav container" aria-label="Navegación principal">
+      <a class="brand" href="#inicio"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path fill="currentColor" d="M13 3h6v10h10v6H19v10h-6V19H3v-6h10z"/></svg></span><span>Clínica del Sur</span></a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Abrir menú">☰</button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#inicio">Inicio</a></li><li><a href="#proyecto">El Proyecto</a></li><li><a href="#datos">Datos</a></li><li><a href="#arquitectura">Arquitectura AWS</a></li><li><a href="#indicadores">Indicadores</a></li><li><a href="#okr">OKR</a></li><li><a href="#contacto">Contacto</a></li>
+        <li><a class="button button--primary" href="#presentacion" data-open-presentation>Ver presentación</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="contenido">
+    <section class="hero" id="inicio">
+      <div class="container hero-grid">
+        <div class="reveal">
+          <p class="eyebrow">UMSA · Módulo V · Propuesta académica</p>
+          <h1>Clínica del Sur</h1>
+          <h2 style="font-size:clamp(1.45rem,3vw,2.35rem);max-width:18ch">Arquitectura de Datos en AWS para una gestión clínica basada en información</h2>
+          <p class="lead">La Clínica del Sur genera información relacionada con pacientes, médicos, especialidades, citas y atenciones. La arquitectura propuesta permite centralizar y organizar estos datos mediante servicios de Amazon Web Services para facilitar su análisis y apoyar la toma de decisiones.</p>
+          <div class="hero-actions"><a class="button button--primary" href="#arquitectura">Explorar arquitectura →</a><a class="button" href="#indicadores">Ver indicadores</a><a class="button" href="#presentacion" data-open-presentation>▶ Presentación</a></div>
+          <p class="hero-note">Caso de estudio ficticio. La arquitectura describe una propuesta y no implica recursos AWS desplegados.</p>
+        </div>
+        <div class="hero-visual reveal" aria-label="Flujo conceptual desde el paciente hasta el análisis">
+          <div class="orbit" aria-hidden="true"></div><div class="core"><strong>Paciente<br>→ datos<br>→ decisión</strong></div>
+          <svg class="pulse" viewBox="0 0 500 80" aria-hidden="true"><path d="M0 42h145l18-25 24 52 29-60 30 62 22-29h232"/></svg>
+          <div class="float-card fc-1"><strong>Amazon RDS</strong>Datos estructurados</div><div class="float-card fc-2"><strong>Amazon S3</strong>Documentos y reportes</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="proyecto">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">01 · Negocio y estrategia</p><h2>Una clínica preparada para decidir con información.</h2><p class="lead">La clínica gestiona pacientes, médicos, especialidades, citas, atenciones, consultas y pagos. El reto es convertir registros dispersos en una visión organizada y útil.</p></div>
+        <div class="grid-3">
+          <article class="card reveal"><div class="card-icon" aria-hidden="true">◎</div><h3>El problema</h3><p>La información distribuida dificulta conocer el estado de las citas, la demanda por especialidad y la actividad asistencial.</p></article>
+          <article class="card reveal"><div class="card-icon" aria-hidden="true">⌁</div><h3>La propuesta</h3><p>Centralizar datos estructurados en RDS, conservar documentos en S3 y controlar el acceso mediante IAM.</p></article>
+          <article class="card reveal"><div class="card-icon" aria-hidden="true">↗</div><h3>El objetivo</h3><p>Mejorar la gestión de citas y atenciones para optimizar servicios y uso de recursos disponibles.</p></article>
+        </div>
+        <div class="journey reveal" aria-label="Recorrido de transformación"><span>Registros dispersos</span><span>Datos centralizados</span><span>KPI y análisis</span><span>Decisiones</span></div>
+      </div>
+    </section>
+
+    <section class="section section--soft" id="arquitectura">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">02 · Arquitectura AWS</p><h2>Seguridad, estructura y documentos en un mismo flujo.</h2><p class="lead">IAM limita el acceso; RDS organiza las operaciones; S3 conserva objetos y reportes. El sitio público no se conecta directamente a la base de datos.</p></div>
+        <div class="architecture reveal" aria-label="Usuarios, IAM, RDS y S3, análisis y decisiones">
+          <article class="architecture-node"><span class="service-tag">Personas</span><div><h3>Usuarios</h3><p>Médico, recepción, análisis y administración.</p></div></article>
+          <article class="architecture-node"><span class="service-tag">Seguridad</span><div><h3>AWS IAM</h3><p>Roles y permisos con mínimo privilegio.</p></div></article>
+          <article class="architecture-node"><span class="service-tag">Datos</span><div><h3>RDS + S3</h3><p>Relaciones en MySQL y archivos privados en objetos.</p></div></article>
+          <article class="architecture-node"><span class="service-tag">Análisis</span><div><h3>KPI</h3><p>Consultas mensuales y reportes históricos.</p></div></article>
+          <article class="architecture-node"><span class="service-tag">Estrategia</span><div><h3>OKR</h3><p>Metas medibles para orientar decisiones.</p></div></article>
+        </div>
+        <p class="muted reveal">Arquitectura propuesta. Los documentos clínicos permanecen privados; el sitio estático se publica de forma separada y sin credenciales.</p>
+      </div>
+    </section>
+
+    <section class="section" id="datos">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">03 · Modelo de información</p><h2>Tablas conectadas alrededor de la atención.</h2><p class="lead">El modelo distingue las entidades requeridas por el trabajo grupal de las ampliaciones que aportan pagos, historia clínica, documentos y trazabilidad.</p></div>
+        <div class="model-toolbar reveal" aria-label="Filtrar tablas"><button class="filter is-active" type="button" data-filter="all">Todas</button><button class="filter" type="button" data-filter="base">Modelo base</button><button class="filter" type="button" data-filter="extension">Ampliaciones</button><button class="filter" type="button" data-filter="audit">Auditoría</button></div>
+        <div class="entity-grid">
+          <article class="card entity reveal" data-kind="base"><small>BASE · PK</small><h3>PACIENTE</h3><ul><li>Identificación y contacto</li><li>Solicita citas</li></ul></article>
+          <article class="card entity reveal" data-kind="base"><small>BASE · PK</small><h3>ESPECIALIDAD</h3><ul><li>Clasifica médicos</li><li>Permite medir demanda</li></ul></article>
+          <article class="card entity reveal" data-kind="base"><small>BASE · PK/FK</small><h3>MÉDICO</h3><ul><li>Pertenece a especialidad</li><li>Atiende citas</li></ul></article>
+          <article class="card entity reveal" data-kind="base"><small>BASE · PK</small><h3>CONSULTORIO</h3><ul><li>Ubicación y estado</li><li>Asignado a citas</li></ul></article>
+          <article class="card entity reveal" data-kind="base"><small>BASE · PK/FK</small><h3>CITA</h3><ul><li>Paciente, médico y horario</li><li>Estados operativos</li></ul></article>
+          <article class="card entity reveal" data-kind="base"><small>BASE · PK/FK</small><h3>ATENCIÓN</h3><ul><li>Una por cita</li><li>Fecha, estado y observación</li></ul></article>
+          <article class="card entity reveal" data-kind="extension"><small>AMPLIACIÓN</small><h3>REGISTRO_CLÍNICO</h3><ul><li>Diagnóstico y tratamiento</li><li>Historial autorizado</li></ul></article>
+          <article class="card entity reveal" data-kind="extension"><small>AMPLIACIÓN</small><h3>PAGO</h3><ul><li>Monto, método y estado</li><li>Relacionado con atención</li></ul></article>
+          <article class="card entity reveal" data-kind="extension"><small>AMPLIACIÓN</small><h3>DOCUMENTO_S3</h3><ul><li>Metadatos y clave del objeto</li><li>El archivo permanece en S3</li></ul></article>
+          <article class="card entity reveal" data-kind="audit"><small>TRAZABILIDAD</small><h3>AUDITORÍA_EVENTO</h3><ul><li>Operación y usuario</li><li>No replica datos clínicos</li></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--soft" id="indicadores">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">04 · KPI y OKR</p><h2>Indicadores que se convierten en metas.</h2><p class="lead">Los KPI describen el funcionamiento. Los Key Results fijan el cambio esperado. Las cifras mostradas son metas propuestas, no resultados alcanzados.</p></div>
+        <div class="grid-3">
+          <article class="card kpi-card reveal"><span class="status">KPI operativo</span><div class="kpi-mark">01</div><h3>Pacientes atendidos por mes</h3><p>Cantidad de pacientes únicos con atenciones completadas. Fuente: PACIENTE, CITA y ATENCIÓN.</p></article>
+          <article class="card kpi-card reveal"><span class="status">KPI de citas</span><div class="kpi-mark">02</div><h3>Porcentaje de citas canceladas</h3><p>(Citas canceladas ÷ total de citas) × 100. Fuente: CITA.</p></article>
+          <article class="card kpi-card reveal"><span class="status">KPI de demanda</span><div class="kpi-mark">03</div><h3>Atenciones por especialidad</h3><p>Total de atenciones agrupadas por especialidad. Fuente: ESPECIALIDAD, MÉDICO, CITA y ATENCIÓN.</p></article>
+        </div>
+        <div class="okr" style="margin-top:1rem">
+          <article class="card objective reveal"><p class="eyebrow">Objetivo</p><h3>Centralizar y organizar los datos de la clínica para facilitar el análisis y apoyar la toma de decisiones.</h3></article>
+          <div class="kr-list">
+            <article class="card kr reveal"><span class="kr-value">−15%</span><div><span class="status">Meta propuesta · KR1</span><h3>Reducir citas canceladas o no atendidas</h3><p>Durante el próximo trimestre.</p></div></article>
+            <article class="card kr reveal"><span class="kr-value">−10%</span><div><span class="status">Meta propuesta · KR2</span><h3>Reducir el tiempo promedio de espera</h3><p>Medido entre llegada y atención.</p></div></article>
+            <article class="card kr reveal"><span class="kr-value">+10%</span><div><span class="status">Meta propuesta · KR3</span><h3>Incrementar pacientes recurrentes</h3><p>Durante el próximo trimestre.</p></div></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="iam">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">05 · IAM y responsabilidades</p><h2>Cada persona accede solo a lo que necesita.</h2></div>
+        <div class="role-tabs reveal">
+          <div class="role-list" role="tablist" aria-label="Roles IAM"><button class="role-button is-active" role="tab" aria-selected="true" data-role="medico">Médico</button><button class="role-button" role="tab" aria-selected="false" data-role="recepcion">Recepcionista</button><button class="role-button" role="tab" aria-selected="false" data-role="analista">Analista de datos</button><button class="role-button" role="tab" aria-selected="false" data-role="admin">Administrador TI</button></div>
+          <article class="card role-panel" aria-live="polite"><span class="status">Principio de mínimo privilegio</span><h3 data-role-title>Médico</h3><div data-role-content><p>Consulta información clínica e historial autorizado, datos necesarios de pacientes y citas, y archivos médicos previamente autorizados en S3.</p><ul><li>Sin administración de infraestructura.</li><li>Acceso condicionado por autorización.</li></ul></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--soft" id="equipo">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">06 · Trabajo grupal</p><h2>Una propuesta construida en equipo.</h2><p class="lead">Negocio, datos, S3, IAM, KPI, OKR y arquitectura convergen en una visión común del sistema.</p></div>
+        <div class="team">
+          <article class="card person reveal"><span class="initials">CG</span><h3>Genesis Callisaya</h3><p>Integrante del equipo</p></article>
+          <article class="card person reveal"><span class="initials">CA</span><h3>Cristhian Rodrigo Alave Sanjines</h3><p>Integrante del equipo</p></article>
+          <article class="card person reveal"><span class="initials">SL</span><h3>Samuel Loza Ramirez</h3><p>Integrante del equipo</p></article>
+          <article class="card person reveal"><span class="initials">LQ</span><h3>Liceth Quispe Apaza</h3><p>Integrante del equipo</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="presentacion">
+      <div class="container presentation-launch reveal"><div><p class="eyebrow">Presentación interactiva</p><h2>Todo el sistema, listo para exponer.</h2><p class="lead">Diez diapositivas recorren el caso de negocio, RDS, S3, IAM, KPI, OKR, arquitectura y conclusión grupal.</p></div><a class="button button--primary" href="#presentacion" data-open-presentation>▶ Abrir presentación</a></div>
+    </section>
+  <!-- Subagent draft intentionally disabled: the principal implementation is authoritative.
+  <section class="system-deep-dive" id="sistema" aria-labelledby="system-title">
+    <div class="system-shell">
+      <header class="system-heading">
+        <p class="system-eyebrow">Visión integral del proyecto</p>
+        <h2 id="system-title">Un sistema de datos para decidir mejor</h2>
+        <p>La propuesta conecta la operación clínica, el almacenamiento en AWS y los indicadores de gestión sin confundir una demostración académica con una implementación productiva.</p>
+      </header>
+
+      <article class="system-panel system-project" id="proyecto-detalle" aria-labelledby="project-title">
+        <div>
+          <p class="system-kicker">01 · Proyecto</p>
+          <h3 id="project-title">De registros dispersos a información útil</h3>
+          <p>La Clínica del Sur brinda atención en distintas especialidades y administra información de pacientes, médicos, consultorios, citas, atenciones, consultas y pagos. Centralizar estos datos facilita conocer la demanda, dar seguimiento a las citas y distribuir mejor los recursos.</p>
+        </div>
+        <blockquote>“Mejorar la gestión de las citas y la atención de los pacientes mediante el análisis de los datos de la clínica.”</blockquote>
+      </article>
+
+      <section id="datos-detalle" aria-labelledby="data-title">
+        <div class="system-section-title">
+          <div><p class="system-kicker">02 · Datos</p><h3 id="data-title">Seis dominios que forman el núcleo clínico</h3></div>
+          <p>Las relaciones mediante claves primarias y foráneas permiten consultar la operación con consistencia.</p>
+        </div>
+        <div class="system-grid system-grid-six">
+          <article class="system-card"><span aria-hidden="true">01</span><h4>Pacientes</h4><p>Identificación, contacto y fecha de registro.</p></article>
+          <article class="system-card"><span aria-hidden="true">02</span><h4>Médicos</h4><p>Profesionales, matrícula, especialidad y estado.</p></article>
+          <article class="system-card"><span aria-hidden="true">03</span><h4>Especialidades</h4><p>Catálogo de servicios médicos disponibles.</p></article>
+          <article class="system-card"><span aria-hidden="true">04</span><h4>Consultorios</h4><p>Espacios físicos, ubicación y disponibilidad.</p></article>
+          <article class="system-card"><span aria-hidden="true">05</span><h4>Citas</h4><p>Agenda, médico, consultorio, estado y motivo.</p></article>
+          <article class="system-card"><span aria-hidden="true">06</span><h4>Atenciones</h4><p>Resultado asistencial asociado a una cita.</p></article>
+        </div>
+        <p class="system-note"><strong>Ampliaciones propuestas:</strong> registro clínico, pagos, metadatos de documentos en S3 y auditoría. Complementan el modelo base sin sustituir las tablas requeridas.</p>
+      </section>
+
+      <section id="almacenamiento-detalle" aria-labelledby="storage-title">
+        <div class="system-section-title"><div><p class="system-kicker">03 · Almacenamiento</p><h3 id="storage-title">RDS estructura; S3 conserva objetos</h3></div></div>
+        <div class="system-compare">
+          <article class="system-card system-rds">
+            <p class="system-service">Amazon RDS</p><h4>Datos relacionales</h4>
+            <ul><li>Pacientes y médicos</li><li>Especialidades y consultorios</li><li>Citas y atenciones</li><li>Fuentes para calcular KPI</li></ul>
+          </article>
+          <div class="system-connector" aria-hidden="true">↔</div>
+          <article class="system-card system-s3">
+            <p class="system-service">Amazon S3</p><h4>Archivos y documentos</h4>
+            <ul><li>Resultados de laboratorio y recetas</li><li>Informes e imágenes médicas</li><li>Reportes históricos</li><li>Archivos del sitio estático</li></ul>
+          </article>
+        </div>
+        <p class="system-note">RDS puede guardar la referencia y los metadatos de un documento; el archivo permanece como objeto en S3. Este sitio no se conecta directamente a la base de datos.</p>
+      </section>
+
+      <section id="iam-detalle" aria-labelledby="iam-title">
+        <div class="system-section-title"><div><p class="system-kicker">04 · Acceso</p><h3 id="iam-title">IAM separa responsabilidades</h3></div><p>Permisos mínimos según las tareas de cada perfil.</p></div>
+        <div class="system-grid system-grid-four">
+          <article class="system-card"><p class="system-role">Médico</p><h4>Atención autorizada</h4><p>Consulta información clínica, pacientes, citas y archivos médicos previamente autorizados.</p></article>
+          <article class="system-card"><p class="system-role">Recepcionista</p><h4>Gestión operativa</h4><p>Registra pacientes y administra citas, sin acceso a historias clínicas.</p></article>
+          <article class="system-card"><p class="system-role">Administrador TI</p><h4>Administración técnica</h4><p>Configura IAM, RDS y S3. Los permisos amplios se reservan para tareas justificadas.</p></article>
+          <article class="system-card"><p class="system-role">Analista de datos</p><h4>Análisis controlado</h4><p>Consulta los datos necesarios para KPI y reportes históricos con el menor acceso posible.</p></article>
+        </div>
+      </section>
+
+      <section id="arquitectura-detalle" aria-labelledby="architecture-title">
+        <div class="system-section-title"><div><p class="system-kicker">05 · Arquitectura</p><h3 id="architecture-title">Flujo propuesto en AWS</h3></div><p>Una arquitectura sencilla, separada por responsabilidades.</p></div>
+        <ol class="system-flow" aria-label="Flujo de la arquitectura propuesta">
+          <li><strong>Personas</strong><span>Médico, recepción, TI y análisis</span></li>
+          <li><strong>AWS IAM</strong><span>Autenticación y autorización por rol</span></li>
+          <li><strong>Amazon RDS</strong><span>Datos operativos estructurados</span></li>
+          <li><strong>Amazon S3</strong><span>Documentos, reportes y sitio</span></li>
+          <li><strong>Decisiones</strong><span>KPI, seguimiento del OKR y asignación de recursos</span></li>
+        </ol>
+        <p class="system-note">Arquitectura propuesta para el trabajo académico. No representa evidencia de recursos desplegados.</p>
+      </section>
+
+      <section id="kpi-detalle" aria-labelledby="kpi-title">
+        <div class="system-section-title"><div><p class="system-kicker">06 · Medición</p><h3 id="kpi-title">KPI que convierten registros en señales</h3></div><p>Los gráficos explican la métrica; no muestran resultados reales.</p></div>
+        <div class="system-grid system-grid-three">
+          <article class="system-card system-metric">
+            <div class="system-bars system-bars-month" role="img" aria-label="Gráfico demostrativo sin valores reales sobre pacientes atendidos por mes"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="system-demo">Visualización demostrativa</p><h4>Pacientes atendidos por mes</h4><p>Total de atenciones completadas durante el mes.</p>
+          </article>
+          <article class="system-card system-metric">
+            <div class="system-donut" role="img" aria-label="Gráfico circular demostrativo sin valores reales sobre el porcentaje de citas canceladas"><span>÷</span></div>
+            <p class="system-demo">Visualización demostrativa</p><h4>Porcentaje de citas canceladas</h4><p>(Citas canceladas ÷ total de citas) × 100.</p>
+          </article>
+          <article class="system-card system-metric">
+            <div class="system-bars system-bars-specialty" role="img" aria-label="Gráfico demostrativo sin valores reales sobre atenciones por especialidad"><i></i><i></i><i></i><i></i></div>
+            <p class="system-demo">Visualización demostrativa</p><h4>Atenciones por especialidad</h4><p>Total de atenciones agrupadas por especialidad.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="okr-detalle" aria-labelledby="okr-title">
+        <div class="system-section-title"><div><p class="system-kicker">07 · Dirección</p><h3 id="okr-title">Un OKR, tres resultados clave</h3></div></div>
+        <div class="system-okr">
+          <article><p class="system-role">Objetivo</p><h4>Centralizar y organizar los datos generados por la clínica</h4><p>Facilitar el análisis de citas y servicios médicos para apoyar la toma de decisiones.</p></article>
+          <ol>
+            <li><strong>KR1 · −15 %</strong><span>Citas canceladas o no atendidas durante el próximo trimestre.</span></li>
+            <li><strong>KR2 · −10 %</strong><span>Tiempo promedio de espera de los pacientes.</span></li>
+            <li><strong>KR3 · +10 %</strong><span>Pacientes recurrentes durante el próximo trimestre.</span></li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="decisiones-detalle" aria-labelledby="decisions-title">
+        <div class="system-section-title"><div><p class="system-kicker">08 · Ciclo de valor</p><h3 id="decisions-title">Del registro a la mejora continua</h3></div></div>
+        <ol class="system-decision-flow">
+          <li><span>1</span><strong>Registrar</strong><small>Operaciones clínicas consistentes</small></li>
+          <li><span>2</span><strong>Proteger</strong><small>Acceso por rol y trazabilidad</small></li>
+          <li><span>3</span><strong>Medir</strong><small>KPI de demanda y citas</small></li>
+          <li><span>4</span><strong>Evaluar</strong><small>Avance de los resultados clave</small></li>
+          <li><span>5</span><strong>Decidir</strong><small>Recursos y acciones de mejora</small></li>
+        </ol>
+      </section>
+
+      <section id="tecnologias-detalle" aria-labelledby="technology-title">
+        <div class="system-section-title"><div><p class="system-kicker">09 · Tecnologías</p><h3 id="technology-title">Componentes del entregable</h3></div></div>
+        <ul class="system-tech-list" aria-label="Tecnologías del proyecto">
+          <li><strong>HTML5</strong><span>Estructura semántica</span></li><li><strong>CSS</strong><span>Diseño adaptable</span></li><li><strong>JavaScript</strong><span>Interacción progresiva</span></li><li><strong>AWS IAM</strong><span>Control de acceso</span></li><li><strong>Amazon RDS</strong><span>Modelo relacional</span></li><li><strong>Amazon S3</strong><span>Objetos y sitio estático</span></li><li><strong>MySQL</strong><span>Esquema propuesto</span></li><li><strong>PlantUML</strong><span>Modelo visual</span></li>
+        </ul>
+      </section>
+    </div>
+  </section>
+  -->
+  <section class="section" id="catalogo-datos" aria-labelledby="catalogo-title">
+    <div class="container">
+      <div class="section-heading reveal"><p class="eyebrow">Datos clínicos organizados</p><h2 id="catalogo-title">Seis tipos de datos que sostienen la operación</h2><p>El modelo mantiene relaciones claras entre la programación de una cita, la atención médica y los recursos disponibles.</p></div>
+      <div class="data-types">
+        <article class="data-type reveal"><span aria-hidden="true">01</span><h3>Pacientes</h3><p>Identificación, contacto, fecha de nacimiento y fecha de registro.</p></article>
+        <article class="data-type reveal"><span aria-hidden="true">02</span><h3>Médicos</h3><p>Nombre, matrícula profesional, especialidad y estado.</p></article>
+        <article class="data-type reveal"><span aria-hidden="true">03</span><h3>Especialidades</h3><p>Catálogo de servicios médicos activos e inactivos.</p></article>
+        <article class="data-type reveal"><span aria-hidden="true">04</span><h3>Consultorios</h3><p>Nombre, ubicación y disponibilidad del espacio físico.</p></article>
+        <article class="data-type reveal"><span aria-hidden="true">05</span><h3>Citas</h3><p>Paciente, médico, consultorio, fecha, hora, estado y motivo.</p></article>
+        <article class="data-type reveal"><span aria-hidden="true">06</span><h3>Atenciones</h3><p>Cita asociada, fecha de atención, estado y observación.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-soft" id="almacenamiento" aria-labelledby="almacenamiento-title">
+    <div class="container">
+      <div class="section-heading reveal"><p class="eyebrow">RDS + S3</p><h2 id="almacenamiento-title">Cada dato se almacena en el servicio adecuado</h2><p>Amazon RDS conserva la estructura relacional; Amazon S3 complementa el sistema con documentos y contenido estático.</p></div>
+      <div class="storage-grid">
+        <article class="storage-card reveal"><div class="storage-badges"><span>Amazon RDS</span><span>MySQL</span></div><h3>Datos estructurados</h3><p>Pacientes, médicos, especialidades, consultorios, citas y atenciones se relacionan mediante claves primarias y foráneas.</p><ul class="clean-list"><li>Integridad y trazabilidad</li><li>Consultas para KPI</li><li>Acceso restringido por roles</li></ul></article>
+        <article class="storage-card reveal"><div class="storage-badges"><span>Amazon S3</span><span>Objetos</span></div><h3>Archivos y contenido</h3><p>Resultados de laboratorio, recetas, informes, imágenes de estudios y reportes históricos permanecen separados del modelo relacional.</p><div class="storage-badges"><span>S3 privado · documentos clínicos</span><span>S3 público · sitio web estático</span></div></article>
+      </div>
+      <aside class="privacy-note reveal" aria-label="Nota de privacidad"><strong>Principio de privacidad:</strong> el bucket público solo contiene HTML, CSS y JavaScript. Ningún dato personal, clínico ni credencial se publica en el sitio.</aside>
+    </div>
+  </section>
+
+  <section class="section" id="roles-iam" aria-labelledby="roles-title">
+    <div class="container">
+      <div class="section-heading reveal"><p class="eyebrow">AWS IAM</p><h2 id="roles-title">Acceso según la responsabilidad de cada usuario</h2><p>IAM aplica el principio de mínimo privilegio antes de permitir el acceso a RDS o S3.</p></div>
+      <div class="role-cards">
+        <article class="role-card reveal"><h3>Médico</h3><p>Consulta información clínica y datos de pacientes y citas; accede únicamente a archivos médicos previamente autorizados en S3.</p></article>
+        <article class="role-card reveal"><h3>Recepcionista</h3><p>Registra pacientes y gestiona citas. No puede consultar historias clínicas ni documentos médicos.</p></article>
+        <article class="role-card reveal"><h3>Administrador TI</h3><p>Administra usuarios, roles, permisos y la configuración técnica de RDS y S3.</p></article>
+        <article class="role-card reveal"><h3>Analista de datos</h3><p>Consulta información necesaria para los KPI y reportes históricos, sin modificar registros clínicos.</p></article>
+      </div>
+      <div class="decision-flow reveal" aria-label="Flujo de autorización"><span class="decision-step">Usuario</span><span class="flow-arrow" aria-hidden="true">→</span><span class="decision-step">IAM</span><span class="flow-arrow" aria-hidden="true">→</span><span class="decision-step">RDS / S3 autorizados</span></div>
+    </div>
+  </section>
+
+  <section class="section section-soft" id="indicadores-demo" aria-labelledby="indicadores-demo-title">
+    <div class="container">
+      <div class="section-heading reveal"><p class="eyebrow">Indicadores de gestión</p><h2 id="indicadores-demo-title">KPI conectados con el objetivo estratégico</h2><p>Las visualizaciones siguientes ilustran el funcionamiento esperado; no representan resultados reales de la clínica.</p></div>
+      <div class="cards-3">
+        <article class="card reveal">
+          <span class="demo-label">Datos demostrativos</span><h3>Pacientes atendidos por mes</h3><p><strong>Mide:</strong> pacientes que recibieron atención durante un mes.</p><p><strong>Datos:</strong> PACIENTE.paciente_id, ATENCION.fecha_atencion y ATENCION.estado.</p><p><strong>Fórmula:</strong> total de atenciones completadas en el mes.</p><p><strong>Fuente:</strong> Amazon RDS.</p>
+          <div class="mini-bars" role="img" aria-label="Ejemplo ilustrativo de seis meses con tendencia ascendente"><i style="--h:42%"></i><i style="--h:56%"></i><i style="--h:51%"></i><i style="--h:68%"></i><i style="--h:76%"></i><i style="--h:86%"></i></div>
+        </article>
+        <article class="card reveal">
+          <span class="demo-label">Datos demostrativos</span><h3>Porcentaje de citas canceladas</h3><p><strong>Mide:</strong> proporción de citas programadas que fueron canceladas.</p><p><strong>Datos:</strong> CITA.cita_id y CITA.estado.</p><p><strong>Fórmula:</strong> (citas canceladas / total de citas) × 100.</p><p><strong>Fuente:</strong> Amazon RDS.</p>
+          <div class="donut" role="img" aria-label="Ejemplo ilustrativo: 18 por ciento de citas canceladas"><strong>18 %</strong></div>
+        </article>
+        <article class="card reveal">
+          <span class="demo-label">Datos demostrativos</span><h3>Atenciones por especialidad</h3><p><strong>Mide:</strong> demanda de atención agrupada por especialidad.</p><p><strong>Datos:</strong> ESPECIALIDAD, MEDICO, CITA y ATENCION.</p><p><strong>Fórmula:</strong> total de atenciones agrupadas por especialidad.</p><p><strong>Fuente:</strong> Amazon RDS.</p>
+          <div class="horizontal-bars" role="img" aria-label="Ejemplo ilustrativo de demanda relativa en cuatro especialidades"><i style="--w:92%"></i><i style="--w:76%"></i><i style="--w:61%"></i><i style="--w:45%"></i></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-soft" id="okr" aria-labelledby="okr-title">
+    <div class="container">
+      <div class="section-heading reveal"><p class="eyebrow">Objetivo y resultados clave</p><h2 id="okr-title">Un OKR medible para mejorar la gestión clínica</h2><p><strong>Objetivo:</strong> centralizar y organizar los datos generados por la clínica mediante una arquitectura de datos en AWS, para facilitar el análisis de las citas y los servicios médicos y apoyar la toma de decisiones.</p></div>
+      <div class="role-cards">
+        <article class="role-card reveal"><span class="demo-label">KR1</span><h3>−15 %</h3><p>Reducir las citas canceladas o no atendidas durante el próximo trimestre.</p></article>
+        <article class="role-card reveal"><span class="demo-label">KR2</span><h3>−10 %</h3><p>Reducir el tiempo promedio de espera de los pacientes.</p></article>
+        <article class="role-card reveal"><span class="demo-label">KR3</span><h3>+10 %</h3><p>Incrementar la cantidad de pacientes recurrentes durante el próximo trimestre.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="decisiones" aria-labelledby="decisiones-title">
+    <div class="container">
+      <div class="section-heading reveal"><p class="eyebrow">Arquitectura orientada a resultados</p><h2 id="decisiones-title">De los datos a las decisiones</h2><p>La arquitectura conecta la operación diaria con indicadores verificables y metas de mejora.</p></div>
+      <div class="decision-flow reveal" aria-label="Flujo desde los datos hasta las decisiones"><span class="decision-step">Datos</span><span class="flow-arrow" aria-hidden="true">→</span><span class="decision-step">RDS + S3</span><span class="flow-arrow" aria-hidden="true">→</span><span class="decision-step">Análisis</span><span class="flow-arrow" aria-hidden="true">→</span><span class="decision-step">KPI</span><span class="flow-arrow" aria-hidden="true">→</span><span class="decision-step">OKR</span><span class="flow-arrow" aria-hidden="true">→</span><span class="decision-step">Decisiones</span></div>
+      <ul class="decision-list reveal"><li>Identificar especialidades con mayor demanda.</li><li>Disminuir cancelaciones y ausencias.</li><li>Distribuir médicos y consultorios con mayor criterio.</li><li>Dar seguimiento mensual a la atención.</li><li>Conservar reportes históricos.</li><li>Proteger información sensible mediante permisos.</li></ul>
+    </div>
+  </section>
+
+  <section class="section section-soft" id="tecnologias" aria-labelledby="tecnologias-title">
+    <div class="container">
+      <div class="section-heading reveal"><p class="eyebrow">Tecnologías propuestas</p><h2 id="tecnologias-title">Servicios y herramientas del sistema</h2></div>
+      <div class="tech-grid">
+        <article class="tech-card reveal"><h3>AWS</h3><p>Plataforma de nube.</p></article><article class="tech-card reveal"><h3>Amazon RDS</h3><p>Base de datos administrada.</p></article><article class="tech-card reveal"><h3>Amazon S3</h3><p>Archivos y hosting estático.</p></article><article class="tech-card reveal"><h3>AWS IAM</h3><p>Usuarios, roles y permisos.</p></article><article class="tech-card reveal"><h3>MySQL</h3><p>Modelo relacional.</p></article><article class="tech-card reveal"><h3>HTML5</h3><p>Estructura semántica.</p></article><article class="tech-card reveal"><h3>CSS3</h3><p>Diseño responsive.</p></article><article class="tech-card reveal"><h3>JavaScript</h3><p>Interacción progresiva.</p></article>
+      </div>
+    </div>
+  </section>
+</main>
+
+  <footer class="site-footer" id="contacto">
+    <div class="container footer-grid">
+      <div><strong>Clínica del Sur</strong><p>Propuesta académica ficticia de arquitectura de datos en AWS.</p></div>
+      <div><strong>Universidad Mayor de San Andrés</strong><p>Inteligencia Artificial y Data Science para la Transformación de Negocios · Postgrado en Informática · Módulo V.</p></div>
+      <div><strong>Equipo</strong><p>Genesis Callisaya · Cristhian Rodrigo Alave Sanjines · Samuel Loza Ramirez · Liceth Quispe Apaza</p><p>La Paz, Bolivia · 2026</p></div>
+    </div>
+  </footer>
+
+  <div class="presentation" data-presentation role="dialog" aria-modal="true" aria-labelledby="presentation-title" hidden>
+    <header class="presentation-toolbar"><strong class="presentation-name" id="presentation-title">Clínica del Sur · Presentación del sistema</strong><span data-slide-status aria-live="polite">Diapositiva 1 de 10</span><div class="toolbar-actions"><button class="icon-button" type="button" data-fullscreen aria-label="Activar pantalla completa">⛶</button><button class="icon-button" type="button" data-close-presentation aria-label="Cerrar presentación">×</button></div></header>
+    <div class="slide-deck">
+      <article class="slide is-active" data-slide aria-labelledby="slide-1"><div class="slide-content"><span class="slide-label">01 · Portada</span><h2 id="slide-1">Clínica del Sur</h2><p class="lead">Arquitectura de datos en AWS para una atención mejor informada.</p><p>Universidad Mayor de San Andrés · Postgrado en Informática · Módulo V</p><p class="muted">Genesis Callisaya · Cristhian Rodrigo Alave Sanjines · Samuel Loza Ramirez · Liceth Quispe Apaza</p></div></article>
+      <article class="slide" data-slide hidden aria-labelledby="slide-2"><div class="slide-content"><span class="slide-label">02 · Negocio</span><h2 id="slide-2">Del registro disperso a una visión compartida.</h2><div class="slide-columns"><div><h3>Necesidad</h3><p>La información separada dificulta conocer citas, atenciones y demanda.</p></div><div><h3>Objetivo estratégico</h3><p>Optimizar servicios y recursos mediante análisis confiable.</p></div></div></div></article>
+      <article class="slide" data-slide hidden aria-labelledby="slide-3"><div class="slide-content"><span class="slide-label">03 · Datos estructurados</span><h2 id="slide-3">Amazon RDS organiza la operación.</h2><ul class="slide-list"><li>Paciente y especialidad</li><li>Médico y consultorio</li><li>Cita y atención</li><li>Claves primarias y foráneas mantienen consistencia</li></ul></div></article>
+      <article class="slide" data-slide hidden aria-labelledby="slide-4"><div class="slide-content"><span class="slide-label">04 · Modelo relacional</span><h2 id="slide-4">Un núcleo estable con ampliaciones justificadas.</h2><div class="slide-columns"><div><h3>Modelo base</h3><p>PACIENTE, ESPECIALIDAD, MÉDICO, CONSULTORIO, CITA y ATENCIÓN.</p></div><div><h3>Ampliaciones</h3><p>REGISTRO_CLÍNICO, PAGO, DOCUMENTO_S3 y AUDITORÍA_EVENTO.</p></div></div></div></article>
+      <article class="slide" data-slide hidden aria-labelledby="slide-5"><div class="slide-content"><span class="slide-label">05 · Amazon S3</span><h2 id="slide-5">Los objetos viven fuera de la base relacional.</h2><ul class="slide-list"><li>Resultados de laboratorio y recetas</li><li>Informes e imágenes médicas privadas</li><li>Reportes históricos</li><li>Sitio estático separado del contenido clínico</li></ul></div></article>
+      <article class="slide" data-slide hidden aria-labelledby="slide-6"><div class="slide-content"><span class="slide-label">06 · AWS IAM</span><h2 id="slide-6">Acceso según responsabilidad.</h2><div class="slide-columns"><ul class="slide-list"><li>Médico</li><li>Recepcionista</li></ul><ul class="slide-list"><li>Analista de datos</li><li>Administrador TI</li></ul></div><p class="muted">La propuesta aplica mínimo privilegio y no publica políticas o credenciales.</p></div></article>
+      <article class="slide" data-slide hidden aria-labelledby="slide-7"><div class="slide-content"><span class="slide-label">07 · Arquitectura</span><h2 id="slide-7">Usuarios → IAM → RDS / S3 → KPI → decisiones.</h2><p class="lead">La seguridad gobierna el acceso; los datos relacionales y documentales alimentan el análisis.</p></div></article>
+      <article class="slide" data-slide hidden aria-labelledby="slide-8"><div class="slide-content"><span class="slide-label">08 · KPI</span><h2 id="slide-8">Tres indicadores para observar la operación.</h2><ul class="slide-list"><li>Pacientes atendidos por mes</li><li>Porcentaje de citas canceladas</li><li>Atenciones por especialidad</li></ul></div></article>
+      <article class="slide" data-slide hidden aria-labelledby="slide-9"><div class="slide-content"><span class="slide-label">09 · OKR</span><h2 id="slide-9">Metas que conectan los datos con la mejora.</h2><div class="slide-columns"><div><h3>−15% cancelaciones</h3><p>KR1 · Próximo trimestre</p><h3>−10% espera</h3><p>KR2 · Tiempo promedio</p></div><div><h3>+10% recurrencia</h3><p>KR3 · Próximo trimestre</p><p class="muted">Metas propuestas, no resultados reportados.</p></div></div></div></article>
+      <article class="slide" data-slide hidden aria-labelledby="slide-10"><div class="slide-content"><span class="slide-label">10 · Conclusión</span><h2 id="slide-10">Datos organizados para decidir mejor.</h2><p class="lead">IAM, RDS y S3 integran seguridad, operación y documentos. Los KPI aportan evidencia para evaluar el OKR y orientar recursos, citas y calidad de atención.</p><p>Trabajo grupal · Clínica del Sur</p></div></article>
+    </div>
+    <footer class="presentation-controls"><button class="button" type="button" data-prev-slide>← Anterior</button><div class="slide-progress" aria-hidden="true"><span></span></div><span class="keyboard-hint muted">← → navegar · F pantalla completa · Esc salir</span><button class="button button--primary" type="button" data-next-slide>Siguiente →</button></footer>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+      const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const header = document.querySelector(".site-header");
+      const navToggle = document.querySelector(".nav-toggle");
+      const navLinks = document.querySelector(".nav-links");
+
+      function closeMenu() { navLinks.classList.remove("is-open"); navToggle.setAttribute("aria-expanded", "false"); }
+      navToggle.addEventListener("click", () => { const open = navLinks.classList.toggle("is-open"); navToggle.setAttribute("aria-expanded", String(open)); });
+      navLinks.addEventListener("click", event => { if (event.target.closest("a")) closeMenu(); });
+
+      addEventListener("scroll", () => {
+        const max = document.documentElement.scrollHeight - innerHeight;
+        const value = max > 0 ? Math.min(100, scrollY / max * 100) : 0;
+        header.style.setProperty("--scroll", `${value}%`);
+      }, { passive: true });
+
+      const reveals = [...document.querySelectorAll(".reveal")];
+      if (reduceMotion || !("IntersectionObserver" in window)) reveals.forEach(item => item.classList.add("is-visible"));
+      else {
+        const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add("is-visible"); observer.unobserve(entry.target); } }), { threshold: .12 });
+        reveals.forEach(item => observer.observe(item));
+      }
+
+      document.querySelectorAll("[data-filter]").forEach(button => button.addEventListener("click", () => {
+        const kind = button.dataset.filter;
+        document.querySelectorAll("[data-filter]").forEach(item => item.classList.toggle("is-active", item === button));
+        document.querySelectorAll(".entity").forEach(entity => entity.classList.toggle("is-dimmed", kind !== "all" && entity.dataset.kind !== kind));
+      }));
+
+      const roles = {
+        medico:["Médico","Consulta información clínica e historial autorizado, datos necesarios de pacientes y citas, y archivos médicos previamente autorizados en S3.",["Sin administración de infraestructura.","Acceso condicionado por autorización."]],
+        recepcion:["Recepcionista","Registra pacientes y gestiona citas para sostener la operación diaria.",["Sin acceso a historias clínicas.","No administra infraestructura."]],
+        analista:["Analista de datos","Consulta la información mínima necesaria para los KPI y los reportes históricos.",["Sin modificación de registros operativos.","Preferencia por datos mínimos o seudonimizados."]],
+        admin:["Administrador TI","Administra la configuración de IAM, RDS y S3 dentro del alcance autorizado.",["Permisos sujetos a mínimo privilegio.","Las credenciales nunca se incluyen en el sitio."]]
+      };
+      document.querySelectorAll("[data-role]").forEach(button => button.addEventListener("click", () => {
+        const [title,text,items] = roles[button.dataset.role];
+        document.querySelectorAll("[data-role]").forEach(item => { const active = item === button; item.classList.toggle("is-active", active); item.setAttribute("aria-selected", String(active)); });
+        document.querySelector("[data-role-title]").textContent = title;
+        document.querySelector("[data-role-content]").innerHTML = `<p>${text}</p><ul>${items.map(item => `<li>${item}</li>`).join("")}</ul>`;
+      }));
+
+      const presentation = document.querySelector("[data-presentation]");
+      const slides = [...presentation.querySelectorAll("[data-slide]")];
+      const status = presentation.querySelector("[data-slide-status]");
+      const progress = presentation.querySelector(".slide-progress span");
+      const prev = presentation.querySelector("[data-prev-slide]");
+      const next = presentation.querySelector("[data-next-slide]");
+      const full = presentation.querySelector("[data-fullscreen]");
+      const close = presentation.querySelector("[data-close-presentation]");
+      let index = 0, previousFocus = null;
+
+      function render(nextIndex, focusTitle = true) {
+        index = Math.max(0, Math.min(nextIndex, slides.length - 1));
+        slides.forEach((slide, position) => { const active = position === index; slide.hidden = !active; slide.classList.toggle("is-active", active); slide.setAttribute("aria-hidden", String(!active)); });
+        status.textContent = `Diapositiva ${index + 1} de ${slides.length}`;
+        progress.style.setProperty("--slide-progress", `${(index + 1) / slides.length * 100}%`);
+        prev.disabled = index === 0; next.disabled = index === slides.length - 1;
+        history.replaceState(null, "", `#presentacion/${index + 1}`);
+        if (focusTitle) { const title = slides[index].querySelector("h2"); title.tabIndex = -1; title.focus({ preventScroll: true }); }
+      }
+      function openPresentation(start = 0) { previousFocus = document.activeElement; presentation.hidden = false; presentation.classList.add("is-open"); document.body.classList.add("presentation-open"); render(start, false); close.focus(); }
+      async function closePresentation() { if (document.fullscreenElement) await document.exitFullscreen(); presentation.classList.remove("is-open"); presentation.hidden = true; document.body.classList.remove("presentation-open"); history.replaceState(null, "", `${location.pathname}${location.search}#presentacion`); previousFocus?.focus(); }
+      async function toggleFullscreen() { try { if (!document.fullscreenElement) await presentation.requestFullscreen(); else await document.exitFullscreen(); } catch { status.textContent = "El navegador no permitió pantalla completa"; } }
+      document.querySelectorAll("[data-open-presentation]").forEach(trigger => trigger.addEventListener("click", event => { event.preventDefault(); openPresentation(0); }));
+      prev.addEventListener("click", () => render(index - 1)); next.addEventListener("click", () => render(index + 1)); close.addEventListener("click", closePresentation); full.addEventListener("click", toggleFullscreen);
+      presentation.addEventListener("keydown", event => {
+        const interactive = event.target.closest?.("button, a, input, select, textarea, [contenteditable='true']");
+        if (interactive && [" ", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+        const actions = { ArrowRight:()=>render(index+1), PageDown:()=>render(index+1), " ":()=>render(index+1), ArrowLeft:()=>render(index-1), PageUp:()=>render(index-1), Home:()=>render(0), End:()=>render(slides.length-1), Escape:closePresentation, f:toggleFullscreen, F:toggleFullscreen };
+        if (actions[event.key]) { event.preventDefault(); actions[event.key](); return; }
+        if (event.key === "Tab") { const focusable = [...presentation.querySelectorAll('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')].filter(item => !item.hidden && item.offsetParent !== null); if (!focusable.length) return; const first = focusable[0], last = focusable.at(-1); if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); } }
+      });
+      document.addEventListener("fullscreenchange", () => full.setAttribute("aria-label", document.fullscreenElement ? "Salir de pantalla completa" : "Activar pantalla completa"));
+      function openFromHash() {
+        const match = location.hash.match(/^#presentacion(?:\/(\d+))?$/);
+        if (match && presentation.hidden) openPresentation(match[1] ? Number(match[1]) - 1 : 0);
+      }
+      addEventListener("hashchange", openFromHash);
+      openFromHash();
+    })();
+    /* Subagent enhancement disabled; principal script is authoritative.
+       Accesibilidad progresiva: el contenido sigue disponible cuando JS no carga.
+    document.documentElement.classList.add('js');
+
+    (() => {
+      const presentation = document.querySelector('#presentacion');
+      if (!presentation) return;
+
+      const launchers = [...document.querySelectorAll('[data-presentation-toggle], [data-presentation-open], a[href="#presentacion"]')];
+      const closeControl = presentation.querySelector('[data-presentation-close], .presentation-close, [data-action="close"]');
+      const nextControl = presentation.querySelector('[data-slide-next], [data-action="next"], .slide-next');
+      const previousControl = presentation.querySelector('[data-slide-prev], [data-action="previous"], [data-action="prev"], .slide-prev');
+      const slides = [...presentation.querySelectorAll('[data-slide], .slide')];
+
+      const presentationIsActive = () => presentation.matches('.is-active, .active, [open], :fullscreen') || document.fullscreenElement === presentation;
+      const syncPressedState = () => {
+        const active = presentationIsActive();
+        launchers.forEach((control) => {
+          if (control.matches('button, [role="button"]')) control.setAttribute('aria-pressed', String(active));
+        });
+      };
+
+      launchers.forEach((control) => {
+        if (control.matches('button, [role="button"]') && !control.hasAttribute('aria-pressed')) control.setAttribute('aria-pressed', 'false');
+      });
+      document.addEventListener('fullscreenchange', syncPressedState);
+      new MutationObserver(syncPressedState).observe(presentation, { attributes: true, attributeFilter: ['class', 'open'] });
+      syncPressedState();
+
+      document.addEventListener('keydown', (event) => {
+        if (event.defaultPrevented || !presentationIsActive()) return;
+        const interactive = event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable="true"]');
+        if (interactive) return;
+
+        if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+          event.preventDefault(); nextControl?.click();
+        } else if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+          event.preventDefault(); previousControl?.click();
+        } else if (event.key === 'Home' && slides.length) {
+          event.preventDefault();
+          slides.find((slide) => !slide.hidden)?.dispatchEvent(new CustomEvent('presentation:first', { bubbles: true }));
+          presentation.querySelector('[data-slide-index="0"], [data-slide-to="0"]')?.click();
+        } else if (event.key === 'End' && slides.length) {
+          event.preventDefault();
+          slides.find((slide) => !slide.hidden)?.dispatchEvent(new CustomEvent('presentation:last', { bubbles: true }));
+          presentation.querySelector(`[data-slide-index="${slides.length - 1}"], [data-slide-to="${slides.length - 1}"]`)?.click();
+        } else if (event.key === 'Escape') {
+          event.preventDefault(); closeControl?.click();
+        }
+      });
+    })();
+    */
+</script>
+  <!-- Subagent footer draft disabled; principal footer is authoritative.
+  <footer class="system-footer-complete" aria-label="Créditos académicos">
+    <div>
+      <p class="system-footer-brand">Clínica del Sur</p>
+      <p>Propuesta académica ficticia de arquitectura de datos en AWS.</p>
+    </div>
+    <div>
+      <p><strong>Universidad Mayor de San Andrés</strong></p>
+      <p>Inteligencia Artificial y Data Science para la Transformación de Negocios · Postgrado en Informática · Módulo V</p>
+    </div>
+    <p class="system-footer-team">Genesis Callisaya · Cristhian Rodrigo Alave Sanjines · Samuel Loza Ramirez · Liceth</p>
+  </footer>
+  -->
+<script>
+  /* Mejoras de accesibilidad añadidas de forma progresiva. */
+  document.documentElement.classList.add("js");
+  const filterControls = [...document.querySelectorAll("[data-filter]")];
+  filterControls.forEach((control, index) => {
+    if (!control.hasAttribute("aria-pressed")) control.setAttribute("aria-pressed", index === 0 ? "true" : "false");
+    control.addEventListener("click", () => {
+      filterControls.forEach(item => item.setAttribute("aria-pressed", String(item === control)));
+    });
+  });
+</script>
+</body>
+</html>

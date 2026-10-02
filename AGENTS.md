@@ -8,6 +8,21 @@ Este proyecto desarrolla la propuesta de arquitectura de datos para la Clinica d
 - Para crear o actualizar el sitio web estatico de una sola pagina, usar `.agents/skills/crear-sitio-clinica/SKILL.md`.
 - Para crear o actualizar la presentacion final, usar `.agents/skills/crear-presentacion-clinica/SKILL.md`.
 
+## Equipo de agentes para el sitio web
+
+Cuando el usuario solicite crear, renovar o revisar el sitio web, usar la skill
+`.agents/skills/crear-sitio-clinica/SKILL.md` y, si el alcance justifica trabajo paralelo,
+coordinar estos perfiles:
+
+- `direccion-visual-ux`: define concepto visual, jerarquia, componentes y experiencia responsive.
+- `html-accesibilidad`: revisa HTML5 semantico, contenido, navegacion, formularios y accesibilidad.
+- `css-responsive`: propone el sistema visual, layout, animaciones moderadas y adaptacion movil.
+- `javascript-interaccion-qa`: implementa interacciones progresivas y verifica errores, teclado y rendimiento.
+
+Los agentes especializados deben entregar recomendaciones, fragmentos o archivos de trabajo separados.
+Solo el agente principal integra la version final de `index.html`, ejecuta las verificaciones y decide que
+cambios se conservan. No permitir ediciones simultaneas sobre el mismo archivo.
+
 ## Reglas comunes
 
 - Mantener coherencia entre el caso de negocio, los datos, Amazon RDS, Amazon S3, AWS IAM, los KPI y el OKR.
