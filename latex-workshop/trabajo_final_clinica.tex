@@ -365,9 +365,16 @@ Los KPI permitiran obtener informacion concreta sobre el funcionamiento de la cl
 toma de decisiones:
 
 \begin{itemize}
-  \item \textbf{Pacientes atendidos por mes:} permite conocer la cantidad de pacientes atendidos y observar su evolucion en el tiempo.
-  \item \textbf{Porcentaje de citas canceladas:} ayuda a identificar problemas en la gestion de citas y evaluar acciones orientadas a disminuir las cancelaciones.
-  \item \textbf{Atenciones por especialidad:} permite identificar las especialidades con mayor demanda y apoyar una mejor distribucion de medicos, consultorios y recursos.
+  \item \textbf{Pacientes atendidos por mes:}
+  permite conocer la cantidad de pacientes atendidos y observar su evolucion en el tiempo.
+
+  \item \textbf{Porcentaje de citas canceladas:}
+  ayuda a identificar problemas en la gestion de citas y evaluar acciones orientadas a disminuir
+  las cancelaciones.
+
+  \item \textbf{Atenciones por especialidad:}
+  permite identificar las especialidades con mayor demanda y apoyar una mejor distribucion de
+  medicos, consultorios y recursos.
 \end{itemize}
 
 Los resultados podran presentarse en reportes periodicos y almacenarse en Amazon S3, facilitando
@@ -384,15 +391,30 @@ necesarios para cumplir su responsabilidad.
   \centering
   \small
   \caption{Matriz basica de roles y permisos}
+
   \begin{tabularx}{\textwidth}{@{}p{3.1cm}Y Y@{}}
     \toprule
     \rowcolor{verdeclaro}
     \textbf{Rol} & \textbf{Acceso permitido} & \textbf{Restricciones} \\
     \midrule
-    Medico & Consulta de informacion clinica, pacientes y citas; lectura de archivos medicos previamente autorizados en S3. & Sin administracion de infraestructura. \\
-    Recepcionista & Registro de pacientes y gestion de citas. & Sin acceso a historias clinicas. \\
-    Analista de datos & Consulta de la informacion necesaria para KPI y acceso a reportes historicos. & Sin modificacion de los registros operativos. \\
-    Administrador TI & Administracion de buckets, configuracion, usuarios, roles, permisos, RDS y S3. & Acceso administrativo sujeto al principio de minimo privilegio. \\
+
+    Medico &
+    Consulta de informacion clinica, pacientes y citas; lectura de archivos medicos previamente
+    autorizados en S3. &
+    Sin administracion de infraestructura. \\
+
+    Recepcionista &
+    Registro de pacientes y gestion de citas. &
+    Sin acceso a historias clinicas. \\
+
+    Analista de datos &
+    Consulta de la informacion necesaria para KPI y acceso a reportes historicos. &
+    Sin modificacion de los registros operativos. \\
+
+    Administrador TI &
+    Administracion de buckets, configuracion, usuarios, roles, permisos, RDS y S3. &
+    Acceso administrativo sujeto al principio de minimo privilegio. \\
+
     \bottomrule
   \end{tabularx}
 \end{table}
@@ -438,46 +460,48 @@ personal y especialidades.
 
 \subsection{Sitio web estatico en Amazon S3}
 
-El grupo preparara y publicara un sitio web estatico en Amazon S3 para presentar el caso de
-negocio, la arquitectura y los indicadores. El sitio no contendra historias clinicas ni datos
-personales; los documentos medicos permaneceran en almacenamiento privado y solamente podran ser
-consultados por roles autorizados.
+Se preparó un sitio web estático en Amazon S3 para presentar el caso de negocio, la arquitectura propuesta y los principales indicadores.
 
 \section{OKR}
 
 \subsection{Objetivo}
 
-\textbf{Objetivo:} Centralizar y organizar los datos generados por la clinica mediante una
-arquitectura de datos en AWS, con el proposito de facilitar el analisis de las citas y los
-servicios medicos, mejorar su gestion y apoyar la toma de decisiones.
+\textbf{Objetivo:} Mejorar la gestión de las citas y la atención de los pacientes mediante el análisis de la información de la clínica, 
+con el fin de apoyar una mejor toma de decisiones y el uso adecuado de los recursos disponibles.
 
 \subsection{Key Results}
 
 \begin{itemize}
-  \item \textbf{KR1:} Reducir en 15\% las citas canceladas o no atendidas.
-  \item \textbf{KR2:} Reducir en 10\% el tiempo promedio de espera de los pacientes.
-  \item \textbf{KR3:} Incrementar en 10\% la cantidad de pacientes recurrentes.
+  \item \textbf{KR1:} Reducir el porcentaje de citas canceladas o no atendidas respecto al periodo anterior.
+
+  \item \textbf{KR2:} Incrementar la cantidad de pacientes atendidos por mes respecto al periodo anterior.
+
+  \item \textbf{KR3:} Identificar las especialidades con mayor demanda y utilizar esta información para mejorar la asignación de médicos, 
+  consultorios y recursos.
 \end{itemize}
 
-\subsection{Relacion entre los datos, los KPI y el OKR}
+\subsection{Relación entre los datos, los KPI y el OKR}
 
-El KR1 se evalua mediante los estados \emph{CANCELADA} y \emph{NO\_ATENDIDA} de la cita. El KR3
-identifica pacientes atendidos que ya contaban con una atencion completada en un periodo anterior.
-El modelo permite calcular el retraso respecto de la hora programada comparando
-\texttt{ATENCION.fecha\_atencion} con \texttt{CITA.fecha\_cita} y
-\texttt{CITA.hora\_programada}. Para medir el tiempo real de espera desde la llegada del paciente,
-se incorpora \texttt{CITA.fecha\_llegada} como ampliacion tecnica. La diferencia entre
-\texttt{CITA.fecha\_llegada} y \texttt{ATENCION.fecha\_atencion} permite evaluar directamente el
-KR2 sin alterar las tablas basicas definidas por el grupo.
+Los KPI definidos permiten realizar el seguimiento del objetivo y de los resultados esperados.
 
-\section{Conclusion}
+El porcentaje de citas canceladas permite evaluar el KR1, comparando la proporción de citas canceladas o no atendidas entre diferentes periodos.
 
-La arquitectura propuesta integra estrategia, datos y servicios AWS en un flujo verificable.
-Amazon RDS organiza las operaciones y garantiza sus relaciones; Amazon S3 conserva archivos y
-reportes con separacion entre contenido publico y privado; AWS IAM limita el acceso de acuerdo con
-las responsabilidades del personal. Los KPI permiten observar demanda, cancelaciones y actividad
-por especialidad, mientras que el OKR convierte esos indicadores en metas operativas. En conjunto,
-la solucion mejora la disponibilidad de informacion y respalda decisiones sobre recursos,
-programacion de citas y calidad de atencion.
+La cantidad de pacientes atendidos por mes permite evaluar el KR2 y observar si existe una mejora en el nivel de atención de la clínica.
 
+Por otro lado, las atenciones por especialidad permiten identificar cuáles presentan mayor demanda. Esta información sirve como apoyo para el KR3, 
+ya que permite tomar decisiones sobre la distribución de médicos, consultorios y otros recursos.
+
+De esta manera, los datos almacenados en Amazon RDS permiten calcular los KPI, comparar sus resultados entre diferentes periodos
+y evaluar el cumplimiento del OKR.
+
+\section{Conclusión}
+
+La arquitectura propuesta permite organizar la información de la Clínica del Sur mediante el uso de Amazon RDS para los datos
+estructurados y Amazon S3 para documentos, imágenes y reportes. AWS IAM permite controlar el acceso a la información de acuerdo con las responsabilidades de cada usuario.
+
+A partir de los datos almacenados se pueden calcular los KPI definidos, analizar el comportamiento de las citas, 
+conocer la cantidad de pacientes atendidos e identificar las especialidades con mayor demanda.
+
+Esta información permite evaluar los resultados del OKR y apoyar la toma de decisiones relacionadas con la gestión de citas, 
+la atención de los pacientes y la distribución de los recursos de la clínica.
 \end{document}
